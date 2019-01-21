@@ -35,6 +35,11 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
   private final Location      location;
 
   /**
+   * The locations at which the mutation occurs
+   */
+  private final List<Location> locations;
+
+  /**
    * The indexes to the instructions within the method at which the mutation
    * occurs.
    *
@@ -44,9 +49,23 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
   private final List<Integer> indexes;
 
   /**
+   * The indexes to the instructions within the method at which the mutation
+   * occurs for each modification introduced by the mutation.
+   *
+   * Usually this will be a single instruction per modification, but may be multiple if the
+   * mutation has been inlined by the compiler to implement a finally block
+   */
+  private final List<List<Integer>> indexesList;
+
+  /**
    * Name of the mutation operator that created this mutation
    */
   private final String        mutator;
+
+  /**
+   * Name of the mutations operator that created this mutation
+   */
+  private final List<String> mutators;
 
   public MutationIdentifier(final Location location, final int index,
       final String mutatorUniqueId) {
@@ -55,9 +74,18 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
 
   public MutationIdentifier(final Location location,
       final Collection<Integer> indexes, final String mutatorUniqueId) {
-    this.location = location;
-    this.indexes = new ArrayList<>(indexes);
-    this.mutator = mutatorUniqueId;
+    this(Collections.singleton(location), Collections.singleton((List<Integer>)new ArrayList<Integer>(indexes)),
+            Collections.singleton(mutatorUniqueId));
+  }
+
+  public MutationIdentifier(final Collection<Location> locations,
+                            final Collection<List<Integer>> indexesList, final Collection<String> mutatorsUniqueIds) {
+    this.locations = new ArrayList<>(locations);
+    this.location = this.locations.get(0);
+    this.indexesList = new ArrayList<>(indexesList);
+    this.indexes = this.indexesList.get(0);
+    this.mutators = new ArrayList<>(mutatorsUniqueIds);
+    this.mutator = this.mutators.get(0);
   }
 
   /**
@@ -70,12 +98,29 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
   }
 
   /**
+   * Returns the locations of the mutations
+   * @return the locations of the mutation
+   */
+  public List<Location> getLocations() {
+    return this.locations;
+  }
+
+  /**
    * Returns the name of the mutator that created this mutation
    *
    * @return the mutator name
    */
   public String getMutator() {
     return this.mutator;
+  }
+
+  /**
+   * Returns the names of the mutators that created this mutation
+   *
+   * @return the mutator names
+   */
+  public List<String> getMutators() {
+    return this.mutators;
   }
 
   /**
@@ -86,6 +131,10 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
    */
   public int getFirstIndex() {
     return this.indexes.iterator().next();
+  }
+
+  public List<List<Integer>> getIndexesList() {
+    return this.indexesList;
   }
 
   @Override
@@ -102,8 +151,14 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
    * @return true if the MutationIdentifier matches otherwise false
    */
   public boolean matches(final MutationIdentifier id) {
-    return this.location.equals(id.location) && this.mutator.equals(id.mutator)
-        && this.indexes.contains(id.getFirstIndex());
+    //TODO Do that better, only works if id is a FOM identifier
+    for (int i = 0; i < this.locations.size(); i++) {
+      if (this.locations.get(i).equals(id.location) && this.mutators.get(i).equals(id.mutator)
+              && this.indexesList.get(i).contains(id.getFirstIndex())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
@@ -120,11 +175,11 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
     final int prime = 31;
     int result = 1;
     result = (prime * result)
-        + ((this.indexes == null) ? 0 : this.indexes.hashCode());
+        + ((this.indexesList == null) ? 0 : this.indexesList.hashCode());
     result = (prime * result)
-        + ((this.location == null) ? 0 : this.location.hashCode());
+        + ((this.locations == null) ? 0 : this.locations.hashCode());
     result = (prime * result)
-        + ((this.mutator == null) ? 0 : this.mutator.hashCode());
+        + ((this.mutators == null) ? 0 : this.mutators.hashCode());
     return result;
   }
 
@@ -140,25 +195,25 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
       return false;
     }
     final MutationIdentifier other = (MutationIdentifier) obj;
-    if (this.indexes == null) {
-      if (other.indexes != null) {
+    if (this.indexesList == null) {
+      if (other.indexesList != null) {
         return false;
       }
-    } else if (!this.indexes.equals(other.indexes)) {
+    } else if (!this.indexesList.equals(other.indexesList)) {
       return false;
     }
-    if (this.location == null) {
-      if (other.location != null) {
+    if (this.locations == null) {
+      if (other.locations != null) {
         return false;
       }
-    } else if (!this.location.equals(other.location)) {
+    } else if (!this.locations.equals(other.locations)) {
       return false;
     }
-    if (this.mutator == null) {
-      if (other.mutator != null) {
+    if (this.mutators == null) {
+      if (other.mutators != null) {
         return false;
       }
-    } else if (!this.mutator.equals(other.mutator)) {
+    } else if (!this.mutators.equals(other.mutators)) {
       return false;
     }
     return true;

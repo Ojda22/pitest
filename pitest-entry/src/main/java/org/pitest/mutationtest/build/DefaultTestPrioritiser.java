@@ -2,10 +2,12 @@ package org.pitest.mutationtest.build;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.pitest.classinfo.ClassName;
+import org.pitest.coverage.ClassLine;
 import org.pitest.coverage.CoverageDatabase;
 import org.pitest.coverage.TestInfo;
 import org.pitest.functional.FCollection;
@@ -41,9 +43,13 @@ public class DefaultTestPrioritiser implements TestPrioritiser {
 
   private Collection<TestInfo> pickTests(MutationDetails mutation) {
     if (!mutation.isInStaticInitializer()) {
-      return this.coverage.getTestsForClassLine(mutation.getClassLine());
+      HashSet<TestInfo> tests = new HashSet<TestInfo>();
+      for (ClassLine line : mutation.getClassLines()) {
+        tests.addAll(this.coverage.getTestsForClassLine(line));
+      }
+      return tests;
     } else {
-      LOG.warning("Using untargetted tests");
+      LOG.warning("Using untargeted tests");
       return this.coverage.getTestsForClass(mutation.getClassName());
     }
   }

@@ -134,9 +134,18 @@ public class ReportOptions {
   private Collection<String>             includedTestMethods            = new ArrayList<>();
 
   private String                         testPlugin                     = "";
-  
+
   private boolean                        useClasspathJar;
 
+  private Collection<Integer>            hom                            = new ArrayList<Integer>(Arrays.asList(1));
+
+  public Collection<Integer> getHom() {
+    return this.hom;
+  }
+
+  public void setHom (final Collection<Integer> hom) {
+    this.hom = hom;
+  }
 
   public boolean isVerbose() {
     return this.verbose;

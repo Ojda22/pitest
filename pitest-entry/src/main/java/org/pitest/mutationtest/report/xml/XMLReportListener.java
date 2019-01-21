@@ -40,6 +40,8 @@ import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.util.ResultOutputStrategy;
 import org.pitest.util.StringUtil;
 import org.pitest.util.Unchecked;
+import org.pitest.mutationtest.engine.MethodName;
+import org.pitest.mutationtest.engine.Location;
 
 enum Tag {
   mutation, sourceFile, mutatedClass, mutatedMethod, methodDescription, lineNumber, mutator, index, killingTest, killingTests, succeedingTests, description, block;
@@ -80,22 +82,36 @@ public class XMLReportListener implements MutationResultListener {
 
   private String makeMutationNode(final MutationResult mutation) {
     final MutationDetails details = mutation.getDetails();
-    return makeNode(clean(details.getFilename()), sourceFile)
-        + makeNode(clean(details.getClassName().asJavaName()), mutatedClass)
-        + makeNode(clean(details.getMethod().name()), mutatedMethod)
-        + makeNode(clean(details.getId().getLocation().getMethodDesc()),
-            methodDescription)
-        + makeNode("" + details.getLineNumber(), lineNumber)
-        + makeNode(clean(details.getMutator()), mutator)
-        + makeNode("" + details.getFirstIndex(), index)
-        + makeNode("" + details.getBlock(), block)
-        + makeNodeWhenConditionSatisfied(!fullMutationMatrix,
-            createKillingTestDesc(mutation.getKillingTest()), killingTest)
-        + makeNodeWhenConditionSatisfied(fullMutationMatrix,
-            createTestDesc(mutation.getKillingTests()), killingTests)
-        + makeNodeWhenConditionSatisfied(fullMutationMatrix,
-            createTestDesc(mutation.getSucceedingTests()), succeedingTests)
-        + makeNode(clean(details.getDescription()), description);
+    StringBuilder sb = new StringBuilder();
+    sb.append(makeNode(clean(details.getFilename()), sourceFile));
+    sb.append(makeNode(clean(details.getClassName().asJavaName()),mutatedClass));
+    for (MethodName mn : details.getMethods()) {
+      sb.append(makeNode(clean(mn.name()), mutatedMethod));
+    }
+    for (Location lc : details.getId().getLocations()) {
+      sb.append(makeNode(clean(lc.getMethodDesc()), methodDescription));
+    }
+    for (Integer l : details.getLineNumbers() ) {
+      sb.append(makeNode("" + l, lineNumber));
+    }
+    for ( String m : details.getMutators()) {
+      sb.append(makeNode(clean(m), mutator));
+    }
+    for ( List<Integer> indexes : details.getId().getIndexesList() ) {
+      sb.append(makeNode("" + indexes.get(0), index));
+    }
+    for (Integer b : details.getBlocks()) {
+      sb.append(makeNode("" + b, block));
+    }
+    sb.append( makeNodeWhenConditionSatisfied(!fullMutationMatrix,
+      createKillingTestDesc(mutation.getKillingTest()), killingTest));
+    sb.append(makeNodeWhenConditionSatisfied(fullMutationMatrix,
+      createTestDesc(mutation.getKillingTests()), killingTests));
+    sb.append(makeNodeWhenConditionSatisfied(fullMutationMatrix,
+      createTestDesc(mutation.getSucceedingTests()), succeedingTests));
+    sb.append(makeNode(clean(details.getDescription()), description));
+
+    return sb.toString();
   }
 
   private String clean(final String value) {

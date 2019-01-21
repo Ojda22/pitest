@@ -358,6 +358,12 @@ public class AbstractPitMojo extends AbstractMojo {
   @Parameter(property = "useClasspathJar", defaultValue = "false")
   private boolean                     useClasspathJar;
 
+  /**
+   * Orders of mutation to run
+   */
+  @Parameter(defaultValue = "1", property = "hom")
+  private ArrayList<Integer>          hom;
+
   protected final GoalStrategy        goalStrategy;
 
   public AbstractPitMojo() {
@@ -682,6 +688,10 @@ public class AbstractPitMojo extends AbstractMojo {
     public List<String> getReasons() {
       return Collections.unmodifiableList(reasons);
     }
+  }
+
+  public List<Integer> getHom() {
+    return this.hom;
   }
 
 }

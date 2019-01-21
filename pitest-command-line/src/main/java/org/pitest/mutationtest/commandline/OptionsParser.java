@@ -55,6 +55,7 @@ import static org.pitest.mutationtest.config.ConfigOption.TIME_STAMPED_REPORTS;
 import static org.pitest.mutationtest.config.ConfigOption.USE_CLASSPATH_JAR;
 import static org.pitest.mutationtest.config.ConfigOption.USE_INLINED_CODE_DETECTION;
 import static org.pitest.mutationtest.config.ConfigOption.VERBOSE;
+import static org.pitest.mutationtest.config.ConfigOption.HOM;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -129,6 +130,7 @@ public class OptionsParser {
   private final OptionSpec<String>                   javaExecutable;
   private final OptionSpec<KeyValuePair>             pluginPropertiesSpec;
   private final OptionSpec<String>                   testPluginSpec;
+  private final OptionSpec<Integer> homSpec;
   private final ArgumentAcceptingOptionSpec<Boolean> includeLaunchClasspathSpec;
   private final ArgumentAcceptingOptionSpec<Boolean> useClasspathJarSpec;
   
@@ -346,6 +348,10 @@ public class OptionsParser {
     this.pluginPropertiesSpec = parserAccepts(PLUGIN_CONFIGURATION)
         .withRequiredArg().ofType(KeyValuePair.class)
         .describedAs("custom plugin properties");
+
+    this.homSpec = parserAccepts(HOM).withRequiredArg()
+        .ofType(Integer.class).withValuesSeparatedBy(',').defaultsTo(1)
+        .describedAs("Orders of mutation");
   }
 
   private OptionSpecBuilder parserAccepts(final ConfigOption option) {
@@ -433,6 +439,8 @@ public class OptionsParser {
 
     data.setIncludedTestMethods(this.includedTestMethodsSpec.values(userArgs));
     data.setJavaExecutable(this.javaExecutable.value(userArgs));
+
+    data.setHom(this.homSpec.values(userArgs));
 
     if (userArgs.has("?")) {
       return new ParseResult(data, "See above for supported parameters.");

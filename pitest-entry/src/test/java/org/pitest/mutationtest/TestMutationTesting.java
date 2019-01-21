@@ -391,8 +391,10 @@ public class TestMutationTesting {
 
     final List<MutationAnalysisUnit> tus = builder
         .createMutationTestUnits(codeClasses);
-
+    
+    this.mae.preRun();
     this.mae.run(tus);
+    this.mae.postRun();
   }
 
   private CoverageOptions createCoverageOptions(ReportOptions data) {

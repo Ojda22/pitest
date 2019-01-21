@@ -209,7 +209,12 @@ public enum ConfigOption {
    * Custom properties for plugins
    */
   PLUGIN_CONFIGURATION("pluginConfiguration"),
-  
+
+  /**
+   * Whether higher order mutation is used or not
+   */
+  HOM("hom"),
+
   /**
    * Communicate classpath using a temporary jar with a classpath manifest.
    * Allows very long classpaths that would otherwise exceed OS limits, but

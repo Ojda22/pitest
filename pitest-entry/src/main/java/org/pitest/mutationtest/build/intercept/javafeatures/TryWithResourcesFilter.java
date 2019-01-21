@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import org.pitest.bytecode.analysis.ClassTree;
 import org.pitest.bytecode.analysis.MethodTree;
+import org.pitest.coverage.ClassLine;
 import org.pitest.functional.FCollection;
 import org.pitest.functional.prelude.Prelude;
 import org.pitest.mutationtest.build.InterceptorType;
@@ -42,7 +43,17 @@ public class TryWithResourcesFilter implements MutationInterceptor {
   }
 
   private Predicate<MutationDetails> isOnMarkedLine() {
-    return a -> TryWithResourcesFilter.this.lines.contains(a.getClassLine().getLineNumber());
+    return new Predicate<MutationDetails>() {
+      @Override
+      public boolean test(MutationDetails a) {
+        for (ClassLine line : a.getClassLines()) {
+          if (lines.contains(line.getLineNumber())) {
+            return true;
+          }
+        }
+        return false;
+      }
+    };
   }
 
   @Override

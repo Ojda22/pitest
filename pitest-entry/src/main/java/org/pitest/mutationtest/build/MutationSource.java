@@ -51,7 +51,7 @@ public class MutationSource {
 
     final Mutater m = this.mutationConfig.createMutator(this.source);
 
-    final Collection<MutationDetails> availableMutations = m
+    final List<MutationDetails> availableMutations = m
         .findMutations(clazz);
 
     if (availableMutations.isEmpty()) {

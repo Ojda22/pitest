@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.pitest.bytecode.analysis.ClassTree;
 import org.pitest.classinfo.ClassByteArraySource;
 import org.pitest.classinfo.ClassInfo;
 import org.pitest.classinfo.ClassName;
@@ -55,6 +56,8 @@ import org.pitest.mutationtest.build.TestPrioritiser;
 import org.pitest.mutationtest.build.WorkerFactory;
 import org.pitest.mutationtest.config.ReportOptions;
 import org.pitest.mutationtest.config.SettingsFactory;
+import org.pitest.mutationtest.engine.Mutater;
+import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationEngine;
 import org.pitest.mutationtest.execute.MutationAnalysisExecutor;
 import org.pitest.mutationtest.incremental.DefaultCodeHistory;
@@ -65,6 +68,8 @@ import org.pitest.mutationtest.statistics.Score;
 import org.pitest.util.Log;
 import org.pitest.util.StringUtil;
 import org.pitest.util.Timings;
+
+import ie.ucd.pel.pitestHOM.pitestHOM.PitestHOMUtilities;
 
 public class MutationCoverage {
 
@@ -131,13 +136,13 @@ public class MutationCoverage {
 
     history().initialize();
 
-    this.timings.registerStart(Timings.Stage.BUILD_MUTATION_TESTS);
-    final List<MutationAnalysisUnit> tus = buildMutationTests(coverageData,
-        engine, args);
-    this.timings.registerEnd(Timings.Stage.BUILD_MUTATION_TESTS);
+    //this.timings.registerStart(Timings.Stage.BUILD_MUTATION_TESTS);
+    //final List<MutationAnalysisUnit> tus = buildMutationTests(coverageData,
+    //    engine, args);
+    //this.timings.registerEnd(Timings.Stage.BUILD_MUTATION_TESTS);
 
-    LOG.info("Created  " + tus.size() + " mutation test units");
-    checkMutationsFound(tus);
+    //LOG.info("Created  " + tus.size() + " mutation test units");
+    //checkMutationsFound(tus);
 
     recordClassPath(coverageData);
 
@@ -149,7 +154,14 @@ public class MutationCoverage {
     final MutationAnalysisExecutor mae = new MutationAnalysisExecutor(
         numberOfThreads(), config);
     this.timings.registerStart(Timings.Stage.RUN_MUTATION_TESTS);
-    mae.run(tus);
+    mae.preRun();
+
+    //if (this.data.getHom().contains(1)) {
+    //  mae.run(tus);
+    //  while (this.data.getHom().remove(1)) { }
+    //}
+    runHOMs(mae, coverageData, engine, args);
+    mae.postRun();
     this.timings.registerEnd(Timings.Stage.RUN_MUTATION_TESTS);
 
     LOG.info("Completed in " + timeSpan(t0));
@@ -316,5 +328,72 @@ private int numberOfThreads() {
       LOG.log(Level.FINE, "Could not find " + clazz + " on classpath for analysis. Falling back to classloader");
       return clSource.getBytes(clazz);
     };
+  }
+
+  private void runHOMs(MutationAnalysisExecutor mae, final CoverageDatabase coverageData, final MutationEngine engine, EngineArguments args) {
+    if (! this.data.getHom().isEmpty()) {
+      final MutationConfig mutationConfig = new MutationConfig(engine, coverage()
+              .getLaunchOptions());
+
+      ClassByteArraySource bas = fallbackToClassLoader(new ClassPathByteArraySource(
+              this.data.getClassPath()));
+
+      TestPrioritiser testPrioritiser = this.settings.getTestPrioritiser()
+              .makeTestPrioritiser(this.data.getFreeFormProperties(), this.code,
+                      coverageData);
+
+      MutationInterceptor interceptor = this.settings.getInterceptor()
+              .createInterceptor(this.data, bas);
+
+      final MutationSource source = new MutationSource(mutationConfig, testPrioritiser, bas, interceptor);
+
+      final WorkerFactory wf = new WorkerFactory(this.baseDir, coverage()
+        .getConfiguration(), mutationConfig, args,
+        new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
+            this.data.getTimeoutConstant()), this.data.isVerbose(), this.data.isFullMutationMatrix(),
+            this.data.getClassPath().getLocalClassPath());
+      
+      final Mutater mutater = mutationConfig.createMutator(bas);
+
+      final MutationGrouper grouper = this.settings.getMutationGrouper().makeFactory(
+          this.data.getFreeFormProperties(), this.code,
+          this.data.getNumberOfThreads(), this.data.getMutationUnitSize());
+
+      boolean noMutationFound = true;
+      PitestHOMUtilities pHOM = new PitestHOMUtilities(mae, wf, testPrioritiser, interceptor, mutater,
+                                                       grouper, this.code.getCodeUnderTestNames());
+
+      for (ClassName c : this.code.getCodeUnderTestNames()) {
+        
+        final List<MutationDetails> mutations = new ArrayList<>(source.createMutations(c));
+        if (!mutations.isEmpty()) {
+          noMutationFound = false;
+        }
+        
+        if (this.data.getHom().contains(1)) {
+          //for (MutationDetails detail : mutations) {
+            //List<ClassName> testNames = FCollection.map(detail.getTestsInOrder(), TestInfo.toDefiningClassName());
+            //List<MutationDetails> d = Collections.singletonList(detail);
+            //mae.run(Collections.singletonList((MutationAnalysisUnit)new MutationTestUnit(d, testNames, wf)));
+          //}
+          final List<MutationAnalysisUnit> tus = new ArrayList<>();  
+          for (final Collection<MutationDetails> ms : grouper.groupMutations(this.code.getCodeUnderTestNames(), mutations)) {
+            tus.add(pHOM.makeUnanalysedUnit(ms));
+          }
+          mae.run(tus);
+        }
+        interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+        pHOM.runMutantsOfOrder(mutations, this.data.getHom());
+        interceptor.end();
+      }
+      
+      if (noMutationFound) {
+        if (this.data.shouldFailWhenNoMutations()) {
+          throw new PitHelpError(Help.NO_MUTATIONS_FOUND);
+        } else {
+          LOG.warning(Help.NO_MUTATIONS_FOUND.toString());
+        }
+      }
+    }
   }
 }

@@ -17,6 +17,7 @@ package org.pitest.mutationtest.engine;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.pitest.classinfo.ClassName;
@@ -35,7 +36,9 @@ public final class MutationDetails implements Serializable {
   private final MutationIdentifier  id;
   private final String              filename;
   private final int                 block;
+  private final List<Integer>       blocks;
   private final int                 lineNumber;
+  private final List<Integer>       lineNumbers;
   private final String              description;
   private final ArrayList<TestInfo> testsInOrder = new ArrayList<>();
   private final boolean             isInFinallyBlock;
@@ -49,11 +52,20 @@ public final class MutationDetails implements Serializable {
   public MutationDetails(final MutationIdentifier id, final String filename,
       final String description, final int lineNumber, final int block,
       final boolean isInFinallyBlock, final PoisonStatus poison) {
+    this(id, filename, description, Collections.singleton(lineNumber), Collections.singleton(block), isInFinallyBlock,
+      poison);
+  }
+
+  public MutationDetails(final MutationIdentifier id, final String filename,
+                         final String description, final Collection<Integer> lineNumbers,
+                         final Collection<Integer> blocks, final boolean isInFinallyBlock, final PoisonStatus poison) {
     this.id = id;
     this.description = Preconditions.checkNotNull(description);
     this.filename = Preconditions.checkNotNull(filename);
-    this.lineNumber = lineNumber;
-    this.block = block;
+    this.lineNumbers = new ArrayList(lineNumbers);
+    this.lineNumber = this.lineNumbers.get(0);
+    this.blocks = new ArrayList(blocks);
+    this.block = this.blocks.get(0);
     this.isInFinallyBlock = isInFinallyBlock;
     this.poison = poison;
   }
@@ -62,10 +74,11 @@ public final class MutationDetails implements Serializable {
 
   @Override
   public String toString() {
-    return "MutationDetails [id=" + this.id + ", filename=" + this.filename + ", block="
-        + this.block + ", lineNumber=" + this.lineNumber + ", description=" + this.description
-        + ", testsInOrder=" + this.testsInOrder + ", isInFinallyBlock="
-        + this.isInFinallyBlock + ", poison=" + this.poison + "]";
+    return "MutationDetails [blocks="
+            + blocks + ", lineNumbers=" + lineNumbers + ", indexes= " + this.id.getIndexesList()
+            + ", mutators = " + this.getMutators()
+            + ", testsInOrder=" + testsInOrder + ", isInFinallyBlock="
+            + isInFinallyBlock + ", poison=" + poison + "]";
   }
 
   public MutationDetails withDescription(String desc) {
@@ -119,12 +132,25 @@ public final class MutationDetails implements Serializable {
   }
 
   /**
-   * Returns the class in which this mutation is located
+   * Returns the method in which this mutation is located
    *
-   * @return class in which mutation is located
+   * @return method in which mutation is located
    */
   public MethodName getMethod() {
     return this.id.getLocation().getMethodName();
+  }
+
+  /**
+   * Returns the methods in which this mutation is located
+   *
+   * @return method in which mutation is located
+   */
+  public List<MethodName> getMethods() {
+    List<MethodName> result = new ArrayList<>();
+    for (Location loc : this.id.getLocations()) {
+      result.add(loc.getMethodName());
+    }
+    return result;
   }
 
   /**
@@ -153,6 +179,19 @@ public final class MutationDetails implements Serializable {
    */
   public ClassLine getClassLine() {
     return new ClassLine(this.id.getClassName(), this.lineNumber);
+  }
+
+  /**
+   * Returns the ClassLines in which this mutation is located
+   *
+   * @return Collection of  ClassLine in which this mutation is located
+   */
+  public Collection<ClassLine> getClassLines() {
+    ArrayList<ClassLine> classLines = new ArrayList<ClassLine>();
+    for (int i = 0; i < lineNumbers.size(); i++) {
+      classLines.add(new ClassLine(this.id.getClassName(), lineNumbers.get(i)));
+    }
+    return classLines;
   }
 
   /**
@@ -215,6 +254,17 @@ public final class MutationDetails implements Serializable {
   }
 
   /**
+   * Returns the basic blocks in which this mutation occurs. See
+   * https://github.com/hcoles/pitest/issues/131 for discussion on block
+   * coverage
+   *
+   * @return the block within the method that this mutation is located in
+   */
+  public List<Integer> getBlocks() {
+    return this.blocks;
+  }
+
+  /**
    * Returns true if this mutation has a matching identifier
    *
    * @param id
@@ -235,6 +285,15 @@ public final class MutationDetails implements Serializable {
   }
 
   /**
+   * Returns the names of the mutators that created this mutation
+   *
+   * @return the mutator name
+   */
+  public List<String> getMutators() {
+    return this.id.getMutators();
+  }
+
+  /**
    * Returns the index to the first instruction on which this mutation occurs.
    * This index is specific to how ASM represents the bytecode.
    *
@@ -250,6 +309,10 @@ public final class MutationDetails implements Serializable {
    */
   public int getInstructionIndex() {
     return getFirstIndex() - 1;
+  }
+
+  public List<Integer> getLineNumbers() {
+    return this.lineNumbers;
   }
 
   /**

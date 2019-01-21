@@ -79,6 +79,8 @@ public final class TestInfo implements Serializable {
         + ((this.definingClass == null) ? 0 : this.definingClass.hashCode());
     result = (prime * result)
         + ((this.name == null) ? 0 : this.name.hashCode());
+    result = (prime * result)
+        + (this.time);
     return result;
   }
 
@@ -106,6 +108,9 @@ public final class TestInfo implements Serializable {
         return false;
       }
     } else if (!this.name.equals(other.name)) {
+      return false;
+    }
+    if (this.time != other.time) {
       return false;
     }
     return true;

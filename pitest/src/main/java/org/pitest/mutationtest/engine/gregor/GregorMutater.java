@@ -114,7 +114,13 @@ public class GregorMutater implements Mutater {
 
   private static Predicate<MethodMutatorFactory> isMutatorFor(
       final MutationIdentifier id) {
-    return a -> id.getMutator().equals(a.getGloballyUniqueId());
+    return new Predicate<MethodMutatorFactory>() {
+      @Override
+      public boolean test(final MethodMutatorFactory a) {
+        return id.getMutators().contains(a.getGloballyUniqueId());
+      }
+
+    };
   }
 
   private Predicate<MethodInfo> filterMethods() {
