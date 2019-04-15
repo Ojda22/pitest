@@ -15,7 +15,6 @@
 package org.pitest.mutationtest.tooling;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,14 +42,12 @@ import org.pitest.help.PitHelpError;
 import org.pitest.mutationtest.EngineArguments;
 import org.pitest.mutationtest.HistoryStore;
 import org.pitest.mutationtest.ListenerArguments;
-import org.pitest.mutationtest.MutationAnalyser;
 import org.pitest.mutationtest.MutationConfig;
 import org.pitest.mutationtest.MutationResultListener;
 import org.pitest.mutationtest.build.MutationAnalysisUnit;
 import org.pitest.mutationtest.build.MutationGrouper;
 import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationSource;
-import org.pitest.mutationtest.build.MutationTestBuilder;
 import org.pitest.mutationtest.build.PercentAndConstantTimeoutStrategy;
 import org.pitest.mutationtest.build.TestPrioritiser;
 import org.pitest.mutationtest.build.WorkerFactory;
@@ -60,16 +57,14 @@ import org.pitest.mutationtest.engine.Mutater;
 import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationEngine;
 import org.pitest.mutationtest.execute.MutationAnalysisExecutor;
-import org.pitest.mutationtest.incremental.DefaultCodeHistory;
 import org.pitest.mutationtest.incremental.HistoryListener;
-import org.pitest.mutationtest.incremental.IncrementalAnalyser;
 import org.pitest.mutationtest.statistics.MutationStatisticsListener;
 import org.pitest.mutationtest.statistics.Score;
 import org.pitest.util.Log;
 import org.pitest.util.StringUtil;
 import org.pitest.util.Timings;
 
-import ie.ucd.pel.pitestHOM.pitestHOM.PitestHOMUtilities;
+import ie.ucd.csl.pitestHOM.pitestHOM.PitestHOMUtilities;
 
 public class MutationCoverage {
 
@@ -95,14 +90,14 @@ public class MutationCoverage {
     this.baseDir = baseDir;
   }
 
-  public CombinedStatistics runReport() throws IOException {
+  public CombinedStatistics runReport() {
 
     Log.setVerbose(this.data.isVerbose());
 
     final Runtime runtime = Runtime.getRuntime();
 
     if (!this.data.isVerbose()) {
-      LOG.info("Verbose logging is disabled. If you encounter an problem please enable it before reporting an issue.");
+      LOG.info("Verbose logging is disabled. If you encounter a problem, please enable it before reporting an issue.");
     }
 
     LOG.fine("Running report with " + this.data);
@@ -136,13 +131,6 @@ public class MutationCoverage {
 
     history().initialize();
 
-    //this.timings.registerStart(Timings.Stage.BUILD_MUTATION_TESTS);
-    //final List<MutationAnalysisUnit> tus = buildMutationTests(coverageData,
-    //    engine, args);
-    //this.timings.registerEnd(Timings.Stage.BUILD_MUTATION_TESTS);
-
-    //LOG.info("Created  " + tus.size() + " mutation test units");
-    //checkMutationsFound(tus);
 
     recordClassPath(coverageData);
 
@@ -155,11 +143,6 @@ public class MutationCoverage {
         numberOfThreads(), config);
     this.timings.registerStart(Timings.Stage.RUN_MUTATION_TESTS);
     mae.preRun();
-
-    //if (this.data.getHom().contains(1)) {
-    //  mae.run(tus);
-    //  while (this.data.getHom().remove(1)) { }
-    //}
     runHOMs(mae, coverageData, engine, args);
     mae.postRun();
     this.timings.registerEnd(Timings.Stage.RUN_MUTATION_TESTS);
@@ -257,52 +240,6 @@ private int numberOfThreads() {
     stats.getStatistics().report(ps);
   }
 
-  private List<MutationAnalysisUnit> buildMutationTests(
-      final CoverageDatabase coverageData, final MutationEngine engine, EngineArguments args) {
-
-    final MutationConfig mutationConfig = new MutationConfig(engine, coverage()
-        .getLaunchOptions());
-
-    final ClassByteArraySource bas = fallbackToClassLoader(new ClassPathByteArraySource(
-        this.data.getClassPath()));
-
-    final TestPrioritiser testPrioritiser = this.settings.getTestPrioritiser()
-        .makeTestPrioritiser(this.data.getFreeFormProperties(), this.code,
-            coverageData);
-
-    final MutationInterceptor interceptor = this.settings.getInterceptor()
-        .createInterceptor(this.data, bas);
-
-    final MutationSource source = new MutationSource(mutationConfig, testPrioritiser, bas, interceptor);
-
-    final MutationAnalyser analyser = new IncrementalAnalyser(
-        new DefaultCodeHistory(this.code, history()), coverageData);
-
-    final WorkerFactory wf = new WorkerFactory(this.baseDir, coverage()
-        .getConfiguration(), mutationConfig, args,
-        new PercentAndConstantTimeoutStrategy(this.data.getTimeoutFactor(),
-            this.data.getTimeoutConstant()), this.data.isVerbose(), this.data.isFullMutationMatrix(),
-            this.data.getClassPath().getLocalClassPath());
-
-    final MutationGrouper grouper = this.settings.getMutationGrouper().makeFactory(
-        this.data.getFreeFormProperties(), this.code,
-        this.data.getNumberOfThreads(), this.data.getMutationUnitSize());
-    final MutationTestBuilder builder = new MutationTestBuilder(wf, analyser,
-        source, grouper);
-
-    return builder.createMutationTestUnits(this.code.getCodeUnderTestNames());
-  }
-
-  private void checkMutationsFound(final List<MutationAnalysisUnit> tus) {
-    if (tus.isEmpty()) {
-      if (this.data.shouldFailWhenNoMutations()) {
-        throw new PitHelpError(Help.NO_MUTATIONS_FOUND);
-      } else {
-        LOG.warning(Help.NO_MUTATIONS_FOUND.toString());
-      }
-    }
-  }
-
   private String timeSpan(final long t0) {
     return "" + ((System.currentTimeMillis() - t0) / 1000) + " seconds";
   }
@@ -371,11 +308,6 @@ private int numberOfThreads() {
         }
         
         if (this.data.getHom().contains(1)) {
-          //for (MutationDetails detail : mutations) {
-            //List<ClassName> testNames = FCollection.map(detail.getTestsInOrder(), TestInfo.toDefiningClassName());
-            //List<MutationDetails> d = Collections.singletonList(detail);
-            //mae.run(Collections.singletonList((MutationAnalysisUnit)new MutationTestUnit(d, testNames, wf)));
-          //}
           final List<MutationAnalysisUnit> tus = new ArrayList<>();  
           for (final Collection<MutationDetails> ms : grouper.groupMutations(this.code.getCodeUnderTestNames(), mutations)) {
             tus.add(pHOM.makeUnanalysedUnit(ms));
@@ -383,7 +315,7 @@ private int numberOfThreads() {
           mae.run(tus);
         }
         interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
-        pHOM.runMutantsOfOrder(mutations, this.data.getHom());
+        pHOM.runMutantsOfOrders(mutations, this.data.getHom());
         interceptor.end();
       }
       

@@ -1,7 +1,6 @@
 package org.pitest.mutationtest.tooling;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
 
@@ -118,8 +117,6 @@ public class EntryPoint {
 
     try {
       return AnalysisResult.success(report.runReport());
-    } catch (final IOException e) {
-      return AnalysisResult.fail(e);
     } finally {
       jac.close();
       ja.close();

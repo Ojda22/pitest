@@ -1,4 +1,4 @@
-package ie.ucd.pel.pitestHOM.pitestHOM;
+package ie.ucd.csl.pitestHOM.pitestHOM;
 
 import org.pitest.classinfo.ClassName;
 import org.pitest.coverage.TestInfo;
@@ -92,7 +92,7 @@ public class PitestHOMUtilities {
         return result;
     }
 
-    private void runSubsetsNR(List<MutationDetails> superSet, int order) {
+    private void runMutantsOfOrder(List<MutationDetails> superSet, int order) {
       int size = superSet.size();
       if (order < 0 || order > size) {
         return;
@@ -142,97 +142,24 @@ public class PitestHOMUtilities {
       }
     }
 
-    private void runSubsets(List<MutationDetails> superSet, int n, int idx, Collection<MutationDetails> current,
-                            Collection<MutationDetails> toRun) {
-        //successful stop clause
-        if (current.size() == n) {
-            if (noOverlap(current)) {
-                MutationDetails detail = combineMutants(current.toArray(new MutationDetails[0]));
-                final List<TestInfo> testDetails = this.testPrioritiser
-                        .assignTests(detail);
-                detail.addTestsInOrder(testDetails);
-                //List<ClassName> testNames = FCollection.map(testDetails,
-                        //TestInfo.toDefiningClassName());
-                //List<MutationDetails> d = Collections.singletonList(detail);
-                //interceptor.intercept(d, mutater);
-                //mae.run(Collections.singletonList((MutationAnalysisUnit)new MutationTestUnit(d, testNames, wf)));
-                toRun.add(detail);
-                if (toRun.size() > 10000) {
-                  interceptor.intercept(toRun, this.mutater);
-                  final List<MutationAnalysisUnit> tus = new ArrayList<>();
-                  for (final Collection<MutationDetails> ms : this.grouper.groupMutations(
-                    this.codeClasses, toRun)) {
-                    tus.add(makeUnanalysedUnit(ms));
-                  }
-                  toRun.clear();
-                  this.mae.run(tus);
-                }
-            }
-            return;
-        }
-        //unsuccessful stop clause
-        if (idx == superSet.size()) {
-            return;
-        }
-        MutationDetails x = superSet.get(idx);
-        current.add(x);
-        //"guess" x is in the subset
-        runSubsets(superSet, n, idx + 1, current, toRun);
-        current.remove(x);
-        //"guess" x is not in the subset
-        runSubsets(superSet, n, idx + 1, current, toRun);
-    }
-
     /**
      * Generates and runs mutants up to order n
      */
-    public void runMutantsOfOrder(List<MutationDetails> fom, Collection<Integer> orders) {
+    public void runMutantsOfOrders(List<MutationDetails> fom, Collection<Integer> orders) {
         if (!orders.isEmpty() && ! fom.isEmpty()) {
           for (Integer i : orders) {
             if (i != 1) {
-              //runSubsets(fom, i, 0, new HashSet<MutationDetails>(), new ArrayList<MutationDetails>());
-              runSubsetsNR(fom,i);
+              runMutantsOfOrder(fom, i);
             }
           }
         }
     }
-
 
     private static boolean noOverlap(Collection<MutationDetails> mutants) {
         List<Integer> l = FCollection.map(mutants, (a) -> a.getFirstIndex());
         Set<Integer> s = new HashSet<>(l);
 
         return l.size() == s.size();
-    }
-
-    public static Collection<MutationDetails> createMutantsOfOrder(List<MutationDetails> fom, int n) {
-        List<MutationDetails> res = new ArrayList<>();
-        for (int i = 2; i <= n; i++) {
-            createSubsets(fom, i, 0, new HashSet<MutationDetails>(), res);
-        }
-        return res;
-    }
-
-    public static void createSubsets(List<MutationDetails> superSet, int n, int idx,
-                                     Collection<MutationDetails> current, Collection<MutationDetails> res) {
-        //successful stop clause
-        if (current.size() == n) {
-            if (noOverlap(current)) {
-                res.add( combineMutants(current.toArray(new MutationDetails[0])));
-            }
-            return;
-        }
-        //unsuccessful stop clause
-        if (idx == superSet.size()) {
-            return;
-        }
-        MutationDetails x = superSet.get(idx);
-        current.add(x);
-        //"guess" x is in the subset
-        createSubsets(superSet, n, idx + 1, current, res);
-        current.remove(x);
-        //"guess" x is not in the subset
-        createSubsets(superSet, n, idx + 1, current, res);
     }
 
     public MutationAnalysisUnit makeUnanalysedUnit(

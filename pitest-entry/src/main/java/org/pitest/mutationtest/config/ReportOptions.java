@@ -106,6 +106,7 @@ public class ReportOptions {
 
   private boolean                        verbose                        = false;
   private boolean                        failWhenNoMutations            = false;
+  private boolean                        skipFailingTests               = false;
 
   private final Collection<String>       outputs                        = new LinkedHashSet<>();
 
@@ -385,6 +386,14 @@ public class ReportOptions {
     this.failWhenNoMutations = failWhenNoMutations;
   }
 
+  public boolean skipFailingTests() {
+    return skipFailingTests;
+  }
+
+  public void setSkipFailingTests(final boolean skipFailingTests) {
+    this.skipFailingTests = skipFailingTests;
+  }
+
   public ProjectClassPaths getMutationClassPaths() {
 
     return new ProjectClassPaths(this.getClassPath(), createClassesFilter(),
@@ -598,7 +607,7 @@ public class ReportOptions {
    */
   public TestPluginArguments createMinionSettings() {
     return new TestPluginArguments(getTestPlugin(), this.getGroupConfig(), this.getExcludedRunners(),
-            this.getIncludedTestMethods());
+            this.getIncludedTestMethods(), this.skipFailingTests());
   }
 
   public String getTestPlugin() {
@@ -644,7 +653,7 @@ public class ReportOptions {
         + properties + ", maxSurvivors=" + maxSurvivors + ", excludedRunners="
         + excludedRunners + ", includedTestMethods=" + includedTestMethods
         + ", testPlugin=" + testPlugin + ", useClasspathJar=" + useClasspathJar
-        + "]";
+        + ", skipFailingTests=" + skipFailingTests + "]";
   }
 
   

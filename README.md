@@ -1,5 +1,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest)
 [![Build Status](https://travis-ci.org/hcoles/pitest.png?branch=master)](https://travis-ci.org/hcoles/pitest)
+[![Build Status](https://dev.azure.com/henrycoles/pitest/_apis/build/status/hcoles.pitest?branchName=master)](https://dev.azure.com/henrycoles/pitest/_build/latest?definitionId=3&branchName=master)
 
 Pitest (aka PIT) is a state of the art mutation testing system for Java and the JVM.
 
@@ -7,9 +8,33 @@ Read all about it at http://pitest.org
 
 ## Releases
 
-### 1.4.3-SNAPSHOT
+### 1.4.7-SNAPSHOT
 
-* #510 - Compute mutation test matric (thanks @nrainer)
+Nothing yet, why not contribute?
+
+### 1.4.6
+
+* #580 - upgrade to ASM 7.1
+* #573 - Ant support for `testPlugin` and `failWhenNoMutations` (thanks @mduggan)
+* #555 - Allow empty elements in maven configuration (thanks @maxgabut)
+
+### 1.4.5
+
+* #557 - Issues running on Java 8
+
+### 1.4.4
+ 
+* #518 - Experimental BigInteger mutator (thanks @ripdajacker)
+* #513 - Sort mutators in html report (thanks @ThLeu)
+* #553 - Classic mutators from literature (thanls @LaurentTho3)
+* #528 - Added skipFailingTests option from maven plugin (thanks @nicerloop)
+
+<details>
+    <summary>Older versions</summary>
+
+### 1.4.3
+
+* #510 - Compute mutation test matrix (thanks @nrainer)
 * #519 - Java 11 support
 
 ### 1.4.2
@@ -374,6 +399,11 @@ however disabled by default, and the generated errors are correctly handled by P
 ### 0.18
 
 * First public release
+</details>
+
+## Issues
+
+Please consult our [issue management rules](ISSUES.md) before creating or working on issues. 
 
 ## Credits
 
@@ -393,6 +423,6 @@ The codebase is checked up on in a few places that give slower feedback than the
 
 [maven2 on IBM JDK check](https://hjc.ci.cloudbees.com/job/maven2_triangle_example/)
 
-[Sonarqube analysis](http://nemo.sonarqube.org/dashboard/index/793182)
+
 
 
