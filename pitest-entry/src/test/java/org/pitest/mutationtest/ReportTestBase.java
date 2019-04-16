@@ -130,8 +130,6 @@ public abstract class ReportTestBase {
           timings);
 
       testee.runReport();
-    } catch (final IOException e) {
-      throw Unchecked.translateCheckedException(e);
     } finally {
       agent.close();
     }

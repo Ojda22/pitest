@@ -195,11 +195,7 @@ public class MutationCoverageReportTest {
     this.testee = new MutationCoverage(strategies, null, this.code, this.data,
         new SettingsFactory(this.data, PluginServices.makeForContextLoader()),
         new Timings());
-    try {
-      return this.testee.runReport();
-    } catch (final IOException e) {
-      throw Unchecked.translateCheckedException(e);
-    }
+    return this.testee.runReport();
   }
 
 }
