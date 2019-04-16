@@ -37,6 +37,7 @@ import static org.pitest.mutationtest.config.ConfigOption.INCLUDE_LAUNCH_CLASSPA
 import static org.pitest.mutationtest.config.ConfigOption.JVM_PATH;
 import static org.pitest.mutationtest.config.ConfigOption.MAX_MUTATIONS_PER_CLASS;
 import static org.pitest.mutationtest.config.ConfigOption.MAX_SURVIVING;
+import static org.pitest.mutationtest.config.ConfigOption.MUTANTPROCESSINGMETHOD;
 import static org.pitest.mutationtest.config.ConfigOption.MUTATIONS;
 import static org.pitest.mutationtest.config.ConfigOption.MUTATION_ENGINE;
 import static org.pitest.mutationtest.config.ConfigOption.MUTATION_THRESHOLD;
@@ -130,7 +131,8 @@ public class OptionsParser {
   private final OptionSpec<String>                   javaExecutable;
   private final OptionSpec<KeyValuePair>             pluginPropertiesSpec;
   private final OptionSpec<String>                   testPluginSpec;
-  private final OptionSpec<Integer> homSpec;
+  private final OptionSpec<Integer>                  homSpec;
+  private final OptionSpec<String>                   mutantProcessingMethodSpec;
   private final ArgumentAcceptingOptionSpec<Boolean> includeLaunchClasspathSpec;
   private final ArgumentAcceptingOptionSpec<Boolean> useClasspathJarSpec;
   
@@ -352,6 +354,10 @@ public class OptionsParser {
     this.homSpec = parserAccepts(HOM).withRequiredArg()
         .ofType(Integer.class).withValuesSeparatedBy(',').defaultsTo(1)
         .describedAs("Orders of mutation");
+
+    this.mutantProcessingMethodSpec = parserAccepts(MUTANTPROCESSINGMETHOD).withRequiredArg()
+            .ofType(String.class).defaultsTo("all")
+            .describedAs("How to process mutants, \"all\", \"stream\", or \"batch-stream\"");
   }
 
   private OptionSpecBuilder parserAccepts(final ConfigOption option) {

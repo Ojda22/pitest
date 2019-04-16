@@ -140,6 +140,16 @@ public class ReportOptions {
 
   private Collection<Integer>            hom                            = new ArrayList<Integer>(Arrays.asList(1));
 
+  private String                         mutantProcessingMethod         = "";
+
+  public String getMutantProcessingMethod() {
+    return mutantProcessingMethod;
+  }
+
+  public void setMutantProcessingMethod(String mutantProcessingMethod) {
+    this.mutantProcessingMethod = mutantProcessingMethod;
+  }
+
   public Collection<Integer> getHom() {
     return this.hom;
   }

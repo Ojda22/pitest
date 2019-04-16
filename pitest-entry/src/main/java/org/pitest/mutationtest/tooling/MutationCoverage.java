@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +49,7 @@ import org.pitest.mutationtest.build.MutationAnalysisUnit;
 import org.pitest.mutationtest.build.MutationGrouper;
 import org.pitest.mutationtest.build.MutationInterceptor;
 import org.pitest.mutationtest.build.MutationSource;
+import org.pitest.mutationtest.build.MutationTestUnit;
 import org.pitest.mutationtest.build.PercentAndConstantTimeoutStrategy;
 import org.pitest.mutationtest.build.TestPrioritiser;
 import org.pitest.mutationtest.build.WorkerFactory;
@@ -296,36 +298,120 @@ private int numberOfThreads() {
           this.data.getFreeFormProperties(), this.code,
           this.data.getNumberOfThreads(), this.data.getMutationUnitSize());
 
-      boolean noMutationFound = true;
       PitestHOMUtilities pHOM = new PitestHOMUtilities(mae, wf, testPrioritiser, interceptor, mutater,
                                                        grouper, this.code.getCodeUnderTestNames());
 
-      for (ClassName c : this.code.getCodeUnderTestNames()) {
-        
-        final List<MutationDetails> mutations = new ArrayList<>(source.createMutations(c));
-        if (!mutations.isEmpty()) {
-          noMutationFound = false;
-        }
-        
-        if (this.data.getHom().contains(1)) {
-          final List<MutationAnalysisUnit> tus = new ArrayList<>();  
-          for (final Collection<MutationDetails> ms : grouper.groupMutations(this.code.getCodeUnderTestNames(), mutations)) {
-            tus.add(pHOM.makeUnanalysedUnit(ms));
-          }
-          mae.run(tus);
-        }
-        interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
-        pHOM.runMutantsOfOrders(mutations, this.data.getHom());
-        interceptor.end();
+      switch (this.data.getMutantProcessingMethod().toLowerCase()) {
+        case "stream-batch":
+          runMutantsStreamBatch(source, grouper, pHOM, mae, interceptor, bas);
+          break;
+        case "stream":
+          runMutantsStream(source, wf, pHOM, mae, interceptor, bas);
+          break;
+        case "all":
+        default:
+          runMutantsAll(source, grouper, pHOM, mae, interceptor, bas);
+          break;
       }
-      
-      if (noMutationFound) {
-        if (this.data.shouldFailWhenNoMutations()) {
-          throw new PitHelpError(Help.NO_MUTATIONS_FOUND);
-        } else {
-          LOG.warning(Help.NO_MUTATIONS_FOUND.toString());
+
+
+    }
+  }
+
+  private void runMutantsStream(MutationSource source, WorkerFactory wf, PitestHOMUtilities pHOM,
+                                     MutationAnalysisExecutor mae, MutationInterceptor interceptor,
+                                ClassByteArraySource bas) {
+    boolean noMutationFound = true;
+    for (ClassName c : this.code.getCodeUnderTestNames()) {
+
+      final List<MutationDetails> mutations = new ArrayList<>(source.createMutations(c));
+      if (!mutations.isEmpty()) {
+        noMutationFound = false;
+      }
+
+      if (this.data.getHom().contains(1)) {
+        for (MutationDetails detail : mutations) {
+          List<ClassName> testNames = FCollection.map(detail.getTestsInOrder(), TestInfo.toDefiningClassName());
+          List<MutationDetails> d = Collections.singletonList(detail);
+          mae.run(Collections.singletonList(new MutationTestUnit(d, testNames, wf)));
         }
+      }
+      interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+      pHOM.runMutantsOfOrdersStream(mutations, this.data.getHom());
+      interceptor.end();
+    }
+
+    if (noMutationFound) {
+      if (this.data.shouldFailWhenNoMutations()) {
+        throw new PitHelpError(Help.NO_MUTATIONS_FOUND);
+      } else {
+        LOG.warning(Help.NO_MUTATIONS_FOUND.toString());
       }
     }
+  }
+
+  private void runMutantsStreamBatch(MutationSource source, MutationGrouper grouper, PitestHOMUtilities pHOM,
+                                     MutationAnalysisExecutor mae, MutationInterceptor interceptor, ClassByteArraySource bas) {
+    boolean noMutationFound = true;
+    for (ClassName c : this.code.getCodeUnderTestNames()) {
+
+      final List<MutationDetails> mutations = new ArrayList<>(source.createMutations(c));
+      if (!mutations.isEmpty()) {
+        noMutationFound = false;
+      }
+
+      if (this.data.getHom().contains(1)) {
+        final List<MutationAnalysisUnit> tus = new ArrayList<>();
+        for (final Collection<MutationDetails> ms : grouper.groupMutations(this.code.getCodeUnderTestNames(), mutations)) {
+          tus.add(pHOM.makeUnanalysedUnit(ms));
+        }
+        mae.run(tus);
+      }
+      interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+      pHOM.runMutantsOfOrdersBatchStream(mutations, this.data.getHom());
+      interceptor.end();
+    }
+
+    if (noMutationFound) {
+      if (this.data.shouldFailWhenNoMutations()) {
+        throw new PitHelpError(Help.NO_MUTATIONS_FOUND);
+      } else {
+        LOG.warning(Help.NO_MUTATIONS_FOUND.toString());
+      }
+    }
+  }
+
+  private void runMutantsAll(MutationSource source, MutationGrouper grouper, PitestHOMUtilities pHOM,
+                                     MutationAnalysisExecutor mae, MutationInterceptor interceptor, ClassByteArraySource bas) {
+    boolean noMutationFound = true;
+    final List<MutationDetails> mutants = new ArrayList<>();
+    for (ClassName c : this.code.getCodeUnderTestNames()) {
+
+      final List<MutationDetails> foms = new ArrayList<>(source.createMutations(c));
+      if (!foms.isEmpty()) {
+        noMutationFound = false;
+      }
+
+      if (this.data.getHom().contains(1)) {
+        mutants.addAll(foms);
+      }
+      interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+      mutants.addAll(pHOM.makeMutantsOfOrders(foms, this.data.getHom()));
+      interceptor.end();
+    }
+
+    if (noMutationFound) {
+      if (this.data.shouldFailWhenNoMutations()) {
+        throw new PitHelpError(Help.NO_MUTATIONS_FOUND);
+      } else {
+        LOG.warning(Help.NO_MUTATIONS_FOUND.toString());
+      }
+    }
+
+    final List<MutationAnalysisUnit> tus = new ArrayList<>();
+    for (final Collection<MutationDetails> ms : grouper.groupMutations(this.code.getCodeUnderTestNames(), mutants)) {
+      tus.add(pHOM.makeUnanalysedUnit(ms));
+    }
+    mae.run(tus);
   }
 }

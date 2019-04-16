@@ -216,6 +216,11 @@ public enum ConfigOption {
   HOM("hom"),
 
   /**
+   * How to process mutants, "all", "stream", or "batch-stream"
+   */
+  MUTANTPROCESSINGMETHOD("mutantProcessingMethod"),
+
+  /**
    * Communicate classpath using a temporary jar with a classpath manifest.
    * Allows very long classpaths that would otherwise exceed OS limits, but
    * may cause problems with some third party libraries.

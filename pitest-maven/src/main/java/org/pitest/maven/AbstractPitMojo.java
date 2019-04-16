@@ -375,6 +375,9 @@ public class AbstractPitMojo extends AbstractMojo {
   @Parameter(defaultValue = "1", property = "hom")
   private ArrayList<Integer>          hom;
 
+  @Parameter(property = "mutantProcessingMethod", defaultValue = "all")
+  private String          mutantProcessingMethod;
+
   private final GoalStrategy          goalStrategy;
 
   public AbstractPitMojo() {
@@ -727,6 +730,10 @@ public class AbstractPitMojo extends AbstractMojo {
 
   public List<Integer> getHom() {
     return this.hom;
+  }
+
+  public String getMutantProcessingMethod() {
+    return this.mutantProcessingMethod;
   }
 
   private <X> ArrayList<X> withoutNulls(List<X> originalList) {

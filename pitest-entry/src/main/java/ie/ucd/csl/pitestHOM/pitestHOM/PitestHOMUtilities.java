@@ -19,6 +19,7 @@ import org.pitest.mutationtest.execute.MutationAnalysisExecutor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -92,7 +93,7 @@ public class PitestHOMUtilities {
         return result;
     }
 
-    private void runMutantsOfOrder(List<MutationDetails> superSet, int order) {
+    private void runMutantsOfOrderBatchStream(List<MutationDetails> superSet, int order) {
       int size = superSet.size();
       if (order < 0 || order > size) {
         return;
@@ -142,17 +143,118 @@ public class PitestHOMUtilities {
       }
     }
 
+    private void runMutantsOfOrderStream(List<MutationDetails> superSet, int order) {
+        int size = superSet.size();
+        if (order < 0 || order > size) {
+            return;
+        }
+        int[] indices = new int[order];
+        for (int i = 0; i < order; i++) {
+            indices[i] = i;
+        }
+        MutationDetails[] toCombine = new MutationDetails[order];
+        while (true) {
+            for (int i = 0; i < order; i++) {
+                toCombine[i] = superSet.get(indices[i]);
+            }
+            if (noOverlap(Arrays.asList(toCombine))) {
+                MutationDetails detail = combineMutants(toCombine);
+                final List<TestInfo> testDetails = this.testPrioritiser.assignTests(detail);
+                detail.addTestsInOrder(testDetails);
+                List<MutationDetails> l = Collections.singletonList(detail);
+                interceptor.intercept(l, this.mutater);
+                final List<MutationAnalysisUnit> tus = new ArrayList<>();
+                if (!l.isEmpty()) {
+                    for (final Collection<MutationDetails> ms : this.grouper.groupMutations(
+                            this.codeClasses, l)) {
+                        tus.add(makeUnanalysedUnit(ms));
+                    }
+                    this.mae.run(tus);
+                }
+            }
+            int r = order - 1;
+            for (int m = size; r >= 0 && indices[r] == --m; r--) { }
+            if (r == -1) {
+                return;
+            }
+            for (int c = indices[r]; r < order;) {
+                indices[r++] = ++c;
+            }
+        }
+    }
+
+    private Collection<MutationDetails> makeMutantsOfOrder(List<MutationDetails> superSet, int order) {
+        Collection<MutationDetails> result = new ArrayList<>();
+        int size = superSet.size();
+        if (order < 0 || order > size) {
+            return result;
+        }
+        int[] indices = new int[order];
+        for (int i = 0; i < order; i++) {
+            indices[i] = i;
+        }
+        MutationDetails[] toCombine = new MutationDetails[order];
+        while (true) {
+            for (int i = 0; i < order; i++) {
+                toCombine[i] = superSet.get(indices[i]);
+            }
+            if (noOverlap(Arrays.asList(toCombine))) {
+                MutationDetails detail = combineMutants(toCombine);
+                final List<TestInfo> testDetails = this.testPrioritiser.assignTests(detail);
+                detail.addTestsInOrder(testDetails);
+                result.add(detail);
+            }
+            int r = order - 1;
+            for (int m = size; r >= 0 && indices[r] == --m; r--) { }
+            if (r == -1) {
+                return result;
+            }
+            for (int c = indices[r]; r < order;) {
+                indices[r++] = ++c;
+            }
+        }
+    }
+
     /**
-     * Generates and runs mutants up to order n
+     * Generates and runs mutants of the specified orders with the batch-stream method
      */
-    public void runMutantsOfOrders(List<MutationDetails> fom, Collection<Integer> orders) {
+    public void runMutantsOfOrdersBatchStream(List<MutationDetails> fom, Collection<Integer> orders) {
         if (!orders.isEmpty() && ! fom.isEmpty()) {
           for (Integer i : orders) {
             if (i != 1) {
-              runMutantsOfOrder(fom, i);
+              runMutantsOfOrderBatchStream(fom, i);
             }
           }
         }
+    }
+
+    /**
+     * Generates and runs mutants of the specified orders with the stream method
+     */
+    public void runMutantsOfOrdersStream(List<MutationDetails> fom, Collection<Integer> orders) {
+        if (!orders.isEmpty() && ! fom.isEmpty()) {
+            for (Integer i : orders) {
+                if (i != 1) {
+                    runMutantsOfOrderBatchStream(fom, i);
+                }
+            }
+        }
+    }
+
+    /**
+     * Generates mutants of the specified orders
+     */
+    public Collection<MutationDetails> makeMutantsOfOrders(List<MutationDetails> fom, Collection<Integer> orders) {
+        Collection<MutationDetails> result = new ArrayList<>();
+        if (!orders.isEmpty() && ! fom.isEmpty()) {
+            for (Integer i : orders) {
+                if (i != 1) {
+                    result.addAll(makeMutantsOfOrder(fom, i));
+                }
+            }
+        }
+        interceptor.intercept(result, this.mutater);
+        return result;
     }
 
     private static boolean noOverlap(Collection<MutationDetails> mutants) {

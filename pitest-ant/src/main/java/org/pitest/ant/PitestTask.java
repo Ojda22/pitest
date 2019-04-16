@@ -256,6 +256,10 @@ public class PitestTask extends Task { // NO_UCD (test only)
     this.setOption(ConfigOption.HOM, value);
   }
 
+  public void setMutantProcessingMethod(final String value) {
+    this.setOption(ConfigOption.MUTANTPROCESSINGMETHOD, value);
+  }
+
   private void setOption(final ConfigOption option, final String value) {
     if (!"".equals(value)) {
       this.options.put(option.getParamName(), value);

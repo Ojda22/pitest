@@ -149,6 +149,7 @@ public class MojoToReportOptionsConverter {
     data.setIncludedTestMethods(this.mojo.getIncludedTestMethods());
 
     data.setHom(this.mojo.getHom());
+    data.setMutantProcessingMethod(this.mojo.getMutantProcessingMethod());
 
     data.setSkipFailingTests(this.mojo.skipFailingTests());
 
