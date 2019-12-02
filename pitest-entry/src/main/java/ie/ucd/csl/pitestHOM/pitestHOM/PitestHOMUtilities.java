@@ -58,8 +58,8 @@ public class PitestHOMUtilities {
         String description = "Mutant of order : " + details.length;
 
         String filename = null;
-        Set<Integer> lineNumbers = new HashSet<>();
-        Set<Integer> blocks = new HashSet<>();
+        List<Integer> lineNumbers = new ArrayList<>();
+        List<Integer> blocks = new ArrayList<>();
 
         Boolean isInFinallyBlock = false;
         Boolean poison = false;
