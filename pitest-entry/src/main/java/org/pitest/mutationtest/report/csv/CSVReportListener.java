@@ -76,8 +76,11 @@ public class CSVReportListener implements MutationResultListener {
       for (final MutationResult mutation : metaData.getMutations()) {
         this.out.write(makeCsv(mutation.getDetails().getFilename(), mutation
             .getDetails().getClassName().asJavaName(), mutation.getDetails()
-            .getMutator(), mutation.getDetails().getMethod(), mutation
-            .getDetails().getLineNumber(), mutation.getStatus(),
+            .getMutators().stream().reduce("", (a,b) ->  "".equals(a) ? b : (a + ("".equals(b) ? "" : "|" + b)) ),
+            mutation.getDetails().getMethods().stream().map(a -> a.name())
+            .reduce("", (a,b) ->  "".equals(a) ? b : (a + ("".equals(b) ? "" : "|" + b)) ),
+            mutation.getDetails().getLineNumbers().stream().map(a -> a.toString())
+            .reduce("", (a,b) ->  "".equals(a) ? b : (a + ("".equals(b) ? "" : "|" + b)) ), mutation.getStatus(),
             createKillingTestDesc(mutation.getKillingTest()))
             + System.getProperty("line.separator"));
       }
