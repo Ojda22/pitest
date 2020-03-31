@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,6 @@ import org.pitest.classpath.ClassPath;
 import org.pitest.coverage.BlockLocation;
 import org.pitest.coverage.CoverageResult;
 import org.pitest.functional.FCollection;
-import org.pitest.functional.SideEffect1;
 import org.pitest.mutationtest.config.TestPluginArguments;
 import org.pitest.mutationtest.engine.Location;
 import org.pitest.mutationtest.engine.MethodName;
@@ -93,11 +93,12 @@ public class CoverageProcessSystemTest {
     final List<CoverageResult> coveredClasses = runCoverageForTest(TesteeWithComplexConstructorsTest.class);
     assertTrue(coversBlock(coveredClasses, "testHigh", 0));
     assertTrue(coversBlock(coveredClasses, "testHigh", 1));
-    assertFalse(coversBlock(coveredClasses, "testHigh", 2));
+    assertTrue(coversBlock(coveredClasses, "testHigh", 2));
 
     assertTrue(coversBlock(coveredClasses, "testLow", 0));
-    assertTrue(coversBlock(coveredClasses, "testLow", 2));
-    assertFalse(coversBlock(coveredClasses, "testLow", 1));
+    assertTrue(coversBlock(coveredClasses, "testLow", 1));
+    assertTrue(coversBlock(coveredClasses, "testLow", 4));
+    assertFalse(coversBlock(coveredClasses, "testLow", 2));
   }
 
   @Test
@@ -232,7 +233,7 @@ public class CoverageProcessSystemTest {
         Location.location(clazz, this.foo, "()V"), 0)));
 
         assertThat(coveredClasses).anyMatch(coverageFor(BlockLocation.blockLocation(
-        Location.location(clazz, this.foo, "()V"), 1)));
+        Location.location(clazz, this.foo, "()V"), 4)));
   }
 
   @Test
@@ -296,7 +297,7 @@ public class CoverageProcessSystemTest {
 
   @Test
   public void shouldFailWithExitCode() throws Exception {
-    final SideEffect1<CoverageResult> noOpHandler = a -> {
+    final Consumer<CoverageResult> noOpHandler = a -> {
     };
 
     final CoverageOptions sa = new CoverageOptions(coverOnlyTestees(), excludeTests(), TestPluginArguments.defaults(), true, -1);
@@ -339,7 +340,7 @@ public class CoverageProcessSystemTest {
   private void runCoverageProcess(final Class<?> test,
       final List<CoverageResult> coveredClasses) throws IOException,
       InterruptedException {
-    final SideEffect1<CoverageResult> handler = a -> coveredClasses.add(a);
+    final Consumer<CoverageResult> handler = a -> coveredClasses.add(a);
 
     final CoverageOptions sa = new CoverageOptions(coverOnlyTestees(), excludeTests(), TestPluginArguments.defaults(), true, -1);
 

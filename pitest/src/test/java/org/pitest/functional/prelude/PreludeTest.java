@@ -26,30 +26,10 @@ import org.mockito.Mockito;
 public class PreludeTest {
 
   @Test
-  public void isNullShouldReturnsTrueWhenNull() {
-    assertTrue(Prelude.isNull().test(null));
-  }
-
-  @Test
-  public void isNullShouldReturnFalseWhenNotNull() {
-    assertFalse(Prelude.isNull().test(1));
-  }
-
-  @Test
-  public void isNotNullShouldReturnFalseWhenNull() {
-    assertFalse(Prelude.isNotNull().test(null));
-  }
-
-  @Test
-  public void isNotNullShouldReturnTrueWhenNotNull() {
-    assertTrue(Prelude.isNotNull().test(1));
-  }
-
-  @Test
   public void printToShouldPrintValueToStream() {
     final Integer i = Integer.valueOf(42);
     final PrintStream stream = Mockito.mock(PrintStream.class);
-    Prelude.printTo(stream).apply(i);
+    Prelude.printTo(stream).accept(i);
     verify(stream).print(i);
   }
 

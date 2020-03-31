@@ -124,6 +124,15 @@ public final class MutationIdentifier implements Comparable<MutationIdentifier>,
   }
 
   /**
+   * Returns the list of instruction indexes to which this mutation applies
+   *
+   * @return the instruction indexes of the mutation
+   */
+  public List<Integer> getIndexes() {
+    return indexesList.get(0);
+  }
+
+  /**
    * Returns the index to the first instruction on which this mutation occurs.
    * This index is specific to how ASM represents the bytecode.
    *

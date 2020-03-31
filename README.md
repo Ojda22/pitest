@@ -6,7 +6,7 @@ Read all about it at http://pitest.org
 
 
 ##Using PIT-HOM
-PIT-HOm can be used exactly like Pitest (see [here](http://pitest.org/quickstart/). It adds two options to Pitest's configuration: the "hom" option, that takes a list of orders of mutation to run (defaults to "1"), and the "mutantProcessingMethod" that specifies how mutants are run (can take values "all", "stream" or "stream-batch", defaults to "all").
+PIT-HOM can be used exactly like Pitest (see [here](http://pitest.org/quickstart/). It adds two options to Pitest's configuration: the "hom" option, that takes a list of orders of mutation to run (defaults to "1"), and the "mutantProcessingMethod" that specifies how mutants are run (can take values "all", "stream" or "stream-batch", defaults to "all").
 
 ## Credits
 

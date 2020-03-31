@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.pitest.classinfo.ClassName;
 import org.pitest.coverage.ClassLine;
 import org.pitest.coverage.TestInfo;
-import org.pitest.util.Preconditions;
 import org.pitest.util.StringUtil;
 
 /**
@@ -60,8 +60,8 @@ public final class MutationDetails implements Serializable {
                          final String description, final Collection<Integer> lineNumbers,
                          final Collection<Integer> blocks, final boolean isInFinallyBlock, final PoisonStatus poison) {
     this.id = id;
-    this.description = Preconditions.checkNotNull(description);
-    this.filename = Preconditions.checkNotNull(filename);
+    this.description = Objects.requireNonNull(description);
+    this.filename = defaultFilenameIfNotSupplued(filename);
     this.lineNumbers = new ArrayList(lineNumbers);
     this.lineNumber = this.lineNumbers.get(0);
     this.blocks = new ArrayList(blocks);
@@ -69,8 +69,6 @@ public final class MutationDetails implements Serializable {
     this.isInFinallyBlock = isInFinallyBlock;
     this.poison = poison;
   }
-
-
 
   @Override
   public String toString() {
@@ -119,7 +117,7 @@ public final class MutationDetails implements Serializable {
   @Deprecated
   public String getLocation() {
     // fixme this should not be here used in string template
-    return this.id.getLocation().describe();
+    return StringUtil.escapeBasicHtmlChars(this.id.getLocation().describe());
   }
 
   /**
@@ -322,6 +320,17 @@ public final class MutationDetails implements Serializable {
    */
   public boolean isInFinallyBlock() {
     return this.isInFinallyBlock;
+  }
+  
+  private String defaultFilenameIfNotSupplued(String filename) {
+    // the BuildVerifier should throw an error if classes are compiled 
+    // without filename debug info, however classes may be generated
+    // by annotation processors. These can be dealt with based on their
+    // bytecode, but they must have a non null source file. 
+    if (filename == null) {
+      return "unknown_source";
+    }
+    return filename;
   }
 
   @Override

@@ -14,6 +14,7 @@ import org.pitest.classinfo.ClassName;
 import org.pitest.classpath.ClassloaderByteArraySource;
 import org.pitest.mutationtest.EngineArguments;
 import org.pitest.mutationtest.MutationConfig;
+import org.pitest.mutationtest.build.intercept.javafeatures.AnEnum;
 import org.pitest.mutationtest.build.intercept.javafeatures.ForEachFilterTest.HasForEachLoop;
 import org.pitest.mutationtest.config.PluginServices;
 import org.pitest.mutationtest.config.ReportOptions;
@@ -157,6 +158,21 @@ public class MutationDiscoveryTest {
 
     assertThat(foundWhenDisabled.size()).isGreaterThan(foundByDefault.size());
   }
+  
+  @Test
+  public void shouldFilterObjectsRequireNonNullCallsForMethodReferences() {
+    final ClassName clazz = ClassName.fromString("requirenotnull/MethodReferenceNullChecks_javac");
+
+    this.data.setMutators(Collections.singletonList("ALL"));
+
+    final Collection<MutationDetails> foundByDefault = findMutants(clazz);
+
+    this.data.setFeatures(Collections.singletonList("-FMRNULL"));
+
+    final Collection<MutationDetails> foundWhenDisabled = findMutants(clazz);
+
+    assertThat(foundWhenDisabled.size()).isGreaterThan(foundByDefault.size());
+  }
 
   @Test
   public void shouldFilterMutationsToForLoopIncrements() {
@@ -178,6 +194,15 @@ public class MutationDiscoveryTest {
     assertThat(actual.size()).isLessThan(actualWithoutFilter.size());
   }
 
+  @Test
+  public void shouldFilterMutationsToEnumConstructors() {
+    final Collection<MutationDetails>  actual = findMutants(AnEnum.class);
+
+    this.data.setFeatures(Collections.singletonList("-FENUM"));
+    final Collection<MutationDetails> actualWithoutFilter = findMutants(AnEnum.class);
+
+    assertThat(actual.size()).isLessThan(actualWithoutFilter.size());
+  }
 
   @Test
   public void filtersEquivalentReturnValsMutants() {

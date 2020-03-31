@@ -2,17 +2,18 @@ package org.pitest.mutationtest.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.pitest.coverage.CoverageExporter;
 import org.pitest.coverage.execute.CoverageOptions;
 import org.pitest.coverage.export.DefaultCoverageExporter;
 import org.pitest.coverage.export.NullCoverageExporter;
 import org.pitest.functional.FCollection;
-import org.pitest.functional.SideEffect1;
 import org.pitest.mutationtest.MutationEngineFactory;
 import org.pitest.mutationtest.MutationResultListenerFactory;
 import org.pitest.mutationtest.build.CompoundInterceptorFactory;
@@ -31,7 +32,6 @@ import org.pitest.process.JavaExecutableLocator;
 import org.pitest.process.KnownLocationJavaExecutableLocator;
 import org.pitest.util.PitError;
 import org.pitest.util.ResultOutputStrategy;
-import org.pitest.util.StringUtil;
 
 public class SettingsFactory {
 
@@ -84,22 +84,27 @@ public class SettingsFactory {
     return firstOrDefault(groupers, new DefaultMutationGrouperFactory());
   }
 
-  public void describeFeatures(SideEffect1<Feature> enabled, SideEffect1<Feature> disabled) {
+  public void describeFeatures(Consumer<Feature> enabled, Consumer<Feature> disabled) {
     final FeatureParser parser = new FeatureParser();
     final Collection<ProvidesFeature> available = new ArrayList<>(this.plugins.findInterceptors());
     final List<FeatureSetting> settings = parser.parseFeatures(this.options.getFeatures());
     final FeatureSelector<ProvidesFeature> selector = new FeatureSelector<>(settings, available);
 
-    final HashSet<Feature> enabledFeatures = new HashSet<>();
-    FCollection.mapTo(selector.getActiveFeatures(), toFeature(), enabledFeatures);
+    List<Feature> enabledFeatures = selector.getActiveFeatures().stream()
+      .map(toFeature())
+      .distinct()
+      .sorted(byName())
+      .collect(Collectors.toList());
+      
+    enabledFeatures.forEach(enabled);
 
-    FCollection.forEach(enabledFeatures, enabled);
-
-    final HashSet<Feature> disabledFeatures = new HashSet<>();
-    FCollection.mapTo(available, toFeature(), disabledFeatures);
-    disabledFeatures.removeAll(enabledFeatures);
-
-    FCollection.forEach(disabledFeatures, disabled);
+    available.stream()
+      .map(toFeature())
+      .distinct()
+      .sorted(byName())
+      .filter(f -> !enabledFeatures.contains(f))
+      .forEach(disabled);
+    
   }
 
 
@@ -135,7 +140,7 @@ public class SettingsFactory {
         .filter(listeners, nameMatches(this.options.getOutputFormats()));
     if (matches.size() < this.options.getOutputFormats().size()) {
       throw new PitError("Unknown listener requested in "
-          + StringUtil.join(this.options.getOutputFormats(), ","));
+          + String.join(",", this.options.getOutputFormats()));
     }
     return matches;
   }
@@ -156,11 +161,12 @@ public class SettingsFactory {
     return found.iterator().next();
   }
 
-
-
   private static Function<ProvidesFeature, Feature> toFeature() {
     return a -> a.provides();
   }
 
 
+  private Comparator<Feature> byName() {
+    return (a,b) -> a.name().compareTo(b.name());
+  }
 }
