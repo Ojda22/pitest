@@ -20,13 +20,13 @@ public abstract class AbstractCRCRVisitor extends MethodVisitor {
         this.factory = factory;
     }
 
-    abstract void mutate(final Double constant);
+    abstract void mutate(Double constant);
 
-    abstract void mutate(final Float constant);
+    abstract void mutate(Float constant);
 
-    abstract void mutate(final Integer constant);
+    abstract void mutate(Integer constant);
 
-    abstract void mutate(final Long constant);
+    abstract void mutate(Long constant);
 
     void mutate(final Number constant) {
 
