@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.function.Function;
-
+import java.util.stream.Collectors;
 
 public class PitestHOMUtilities {
 
@@ -181,6 +181,100 @@ public class PitestHOMUtilities {
                 indices[r++] = ++c;
             }
         }
+    }
+
+    public Collection<MutationDetails> combineMutants(List<MutationDetails> mutantsOnChange, List<MutationDetails> mutantsAroundChange, List<Integer> changedLines, boolean outerBehaviour){
+        Collection<MutationDetails> combinedHOM = new ArrayList<>();
+
+        for (MutationDetails mutantAround : mutantsAroundChange) {
+                if(changedLines.contains(mutantAround.getLineNumber())){
+                    continue;
+                }
+            // here its going checking for line number
+            // because if a mutant (scope all) is on the changed line -> it should not have mapping with inner mutants
+            for (MutationDetails mutantOn : mutantsOnChange) {
+                Collection<Location> locations = new ArrayList<>();
+                locations.addAll(mutantAround.getId().getLocations());
+                locations.addAll(mutantOn.getId().getLocations());
+
+                Collection<List<Integer>> indexesList = new ArrayList<>();
+                indexesList.addAll(mutantAround.getId().getIndexesList());
+                indexesList.addAll(mutantOn.getId().getIndexesList());
+
+                Collection<String> mutatorsUniqueIDs = new ArrayList<>();
+                mutatorsUniqueIDs.addAll(mutantAround.getId().getMutators());
+                mutatorsUniqueIDs.addAll(mutantOn.getId().getMutators());
+
+                Collection<Integer> blocks = new ArrayList<>();
+                blocks.addAll(mutantAround.getBlocks());
+                blocks.addAll(mutantOn.getBlocks());
+
+                Collection<Integer> lineNumbers = new ArrayList<>();
+                lineNumbers.addAll(mutantAround.getLineNumbers());
+                lineNumbers.addAll(mutantOn.getLineNumbers());
+//                String description = "Lines: " + lineNumbers.toArray()[0] + " - " + lineNumbers.toArray()[1];
+
+                boolean isInFinallyBlock = mutantAround.isInFinallyBlock() || mutantOn.isInFinallyBlock();
+                String fileName = mutantAround.getFilename();
+
+                PoisonStatus poisonStatus;
+                if (mutantAround.mayPoisonJVM() || mutantOn.mayPoisonJVM()){
+                    poisonStatus = PoisonStatus.MAY_POISON_JVM;
+                }else {
+                    poisonStatus = PoisonStatus.NORMAL;
+                }
+
+                List<TestInfo> testsForMutantOnLine = this.testPrioritiser.assignTests(mutantOn);
+                String description = testsForMutantOnLine.stream().map(a -> a.getName()).collect(Collectors.joining("|"));
+
+                MutationIdentifier id = new MutationIdentifier(locations, indexesList, mutatorsUniqueIDs);
+
+                MutationDetails combinedMutant = new MutationDetails(id, fileName, description, lineNumbers, blocks, isInFinallyBlock, poisonStatus);
+
+                if(outerBehaviour){
+                    combinedMutant.addTestsInOrder(testsForMutantOnLine);
+                }else{
+                    List<TestInfo> testsForMutantAroundLine = this.testPrioritiser.assignTests(mutantAround);
+
+                    List<TestInfo> testsUnion = union(testsForMutantOnLine, testsForMutantAroundLine);
+
+                    combinedMutant.addTestsInOrder(testsUnion);
+                }
+
+                combinedHOM.add(combinedMutant);
+            }
+        }
+
+        interceptor.intercept(combinedHOM, this.mutater);
+
+        return combinedHOM;
+    }
+
+    public <T> List<T> union(List<T> testsForMutantOnLine, List<T> testsForMutantAroundLine){
+        // computationaly expensive O(n^2)
+//        return Stream.concat(testsForMutantOnLine.stream(),testsForMutantAroundLine.stream()).distinct().collect(Collectors.toList())
+        Set<T> set = new HashSet<T>();
+        set.addAll(testsForMutantAroundLine);
+        set.addAll(testsForMutantOnLine);
+        return new ArrayList<T>(set);
+    }
+
+    public <T> List<T> intersection(List<T> testsForMutantOnLine, List<T> testsForMutantAroundLine){
+//        return testsForMutantAroundLine.stream().filter(testsForMutantOnLine::contains).collect(Collectors.toList());
+        List<T> list = new ArrayList<T>();
+        for(T t: testsForMutantAroundLine){
+            if(testsForMutantOnLine.contains(t)){
+                list.add(t);
+            }
+        }
+        return list;
+    }
+
+    public List<MutationDetails> extractFromChangedLines(List<MutationDetails> foms, List<Integer> lines){
+
+        List<MutationDetails> mutantsOnLines = foms.stream().filter(m -> lines.contains(m.getLineNumbers().get(0))).collect(Collectors.toList());
+
+        return mutantsOnLines;
     }
 
     private Collection<MutationDetails> makeMutantsOfOrder(List<MutationDetails> superSet, int order) {
