@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
@@ -143,6 +144,18 @@ public class ReportOptions {
   private Collection<Integer>            hom                            = new ArrayList<Integer>(Arrays.asList(1));
 
   private String                         mutantProcessingMethod         = "";
+
+  private Map<String, List<Integer>> changes = Collections.emptyMap();
+
+  private boolean outerBehaviour;
+
+  public void setChangedLinesOnFile(final Map<String, List<Integer>> map){
+    this.changes = map;
+  }
+
+  public Map<String, List<Integer>> getChanges() {
+    return changes;
+  }
 
   public String getMutantProcessingMethod() {
     return mutantProcessingMethod;
@@ -638,6 +651,14 @@ public class ReportOptions {
     this.useClasspathJar = useClasspathJar;
   }
 
+  public void setOuterBehaviour(boolean outerBehaviour) {
+    this.outerBehaviour = outerBehaviour;
+  }
+
+  public boolean getOuterBehaviour() {
+    return this.outerBehaviour;
+  }
+
   @Override
   public String toString() {
     return "ReportOptions [targetClasses=" + targetClasses
@@ -668,7 +689,7 @@ public class ReportOptions {
         + ", skipFailingTests=" + skipFailingTests + "]";
   }
 
-  
+
 
 
 }

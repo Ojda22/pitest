@@ -375,6 +375,16 @@ public class AbstractPitMojo extends AbstractMojo {
   @Parameter(property = "mutantProcessingMethod", defaultValue = "all")
   private String          mutantProcessingMethod;
 
+  /**
+   * Changed lines on files in commit
+   */
+
+  @Parameter(property = "changes")
+  private File changes;
+
+  @Parameter(defaultValue = "false", property="outerBehaviour")
+  private boolean outerBehaviour;
+
   private final GoalStrategy          goalStrategy;
 
   public AbstractPitMojo() {
@@ -657,6 +667,10 @@ public class AbstractPitMojo extends AbstractMojo {
     return this.mutationEngine;
   }
 
+  public boolean getOuterBehaviour() {
+    return this.outerBehaviour;
+  }
+
   public String getJavaExecutable() {
     return this.jvm;
   }
@@ -723,6 +737,10 @@ public class AbstractPitMojo extends AbstractMojo {
     public List<String> getReasons() {
       return Collections.unmodifiableList(reasons);
     }
+  }
+
+  public File getChanges() {
+    return changes;
   }
 
   public List<Integer> getHom() {
