@@ -386,26 +386,63 @@ public class MutationCoverage {
         final List<MutationDetails> mutants = new ArrayList<>();
         for (ClassName c : this.code.getCodeUnderTestNames()) {
 
-            final List<MutationDetails> foms = new ArrayList<>(source.createMutations(c));
-            if (!foms.isEmpty()) {
-                noMutationFound = false;
-            }
+            if(!this.data.getChanges().isEmpty()){
 
-            interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+                String file = "src/main/java/".concat(c.asInternalName().replace(".", "/").concat(".java"));
+                boolean contains = this.data.getChanges().containsKey(file);
+                if(contains){
+                    final List<MutationDetails> foms = new ArrayList<>(source.createMutations(c));
+                    if (!foms.isEmpty()) {
+                        noMutationFound = false;
+                    }
 
-            String file = "src/main/java/".concat(c.asInternalName().replace(".", "/").concat(".java"));
-            boolean contains = this.data.getChanges().containsKey(file);
-            if(!this.data.getChanges().isEmpty() && contains) {
-                List<Integer> changedLinesPerFile = this.data.getChanges().get(file);
-                List<MutationDetails> mutantsOnLine = pHOM.extractFromChangedLines(foms, changedLinesPerFile);
-                mutants.addAll(pHOM.combineMutants(mutantsOnLine, foms, changedLinesPerFile, this.data.getOuterBehaviour()));
-            } else {
+                    interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+
+                    List<Integer> changedLinesPerFile = this.data.getChanges().get(file);
+                    List<MutationDetails> mutantsOnLine = pHOM.extractFromChangedLines(foms, changedLinesPerFile);
+                    mutants.addAll(pHOM.combineMutants(mutantsOnLine, foms, changedLinesPerFile, this.data.getOuterBehaviour()));
+
+                    interceptor.end();
+
+                }else {
+                    continue;
+                }
+            }else {
+                final List<MutationDetails> foms = new ArrayList<>(source.createMutations(c));
+                if (!foms.isEmpty()) {
+                    noMutationFound = false;
+                }
+
+                interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+
                 if (this.data.getHom().contains(1)) {
                     mutants.addAll(foms);
                 }
                 mutants.addAll(pHOM.makeMutantsOfOrders(foms, this.data.getHom()));
+
+                interceptor.end();
             }
-            interceptor.end();
+
+//            final List<MutationDetails> foms = new ArrayList<>(source.createMutations(c));
+//            if (!foms.isEmpty()) {
+//                noMutationFound = false;
+//            }
+//
+//            interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+//
+//            String file = "src/main/java/".concat(c.asInternalName().replace(".", "/").concat(".java"));
+//            boolean contains = this.data.getChanges().containsKey(file);
+//            if(!this.data.getChanges().isEmpty() && contains) {
+//                List<Integer> changedLinesPerFile = this.data.getChanges().get(file);
+//                List<MutationDetails> mutantsOnLine = pHOM.extractFromChangedLines(foms, changedLinesPerFile);
+//                mutants.addAll(pHOM.combineMutants(mutantsOnLine, foms, changedLinesPerFile, this.data.getOuterBehaviour()));
+//            } else {
+//                if (this.data.getHom().contains(1)) {
+//                    mutants.addAll(foms);
+//                }
+//                mutants.addAll(pHOM.makeMutantsOfOrders(foms, this.data.getHom()));
+//            }
+//            interceptor.end();
         }
 
         if (noMutationFound) {
