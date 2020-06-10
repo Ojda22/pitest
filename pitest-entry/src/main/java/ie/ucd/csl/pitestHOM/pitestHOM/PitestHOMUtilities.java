@@ -190,8 +190,6 @@ public class PitestHOMUtilities {
                 if(changedLines.contains(mutantAround.getLineNumber())){
                     continue;
                 }
-            // here its going checking for line number
-            // because if a mutant (scope all) is on the changed line -> it should not have mapping with inner mutants
             for (MutationDetails mutantOn : mutantsOnChange) {
                 Collection<Location> locations = new ArrayList<>();
                 locations.addAll(mutantAround.getId().getLocations());
@@ -271,9 +269,11 @@ public class PitestHOMUtilities {
     }
 
     public List<MutationDetails> extractFromChangedLines(List<MutationDetails> foms, List<Integer> lines){
+        List<MutationDetails> mutantsOnLines = new ArrayList<>();
 
-        List<MutationDetails> mutantsOnLines = foms.stream().filter(m -> lines.contains(m.getLineNumbers().get(0))).collect(Collectors.toList());
-
+        if(!lines.isEmpty()) {
+            mutantsOnLines = foms.stream().filter(m -> lines.contains(m.getLineNumbers().get(0))).collect(Collectors.toList());
+        }
         return mutantsOnLines;
     }
 
