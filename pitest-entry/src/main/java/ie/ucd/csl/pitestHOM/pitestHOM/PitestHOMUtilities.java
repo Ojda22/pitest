@@ -183,7 +183,7 @@ public class PitestHOMUtilities {
         }
     }
 
-    public Collection<MutationDetails> combineMutants(List<MutationDetails> mutantsOnChange, List<MutationDetails> mutantsAroundChange, List<Integer> changedLines, boolean outerBehaviour){
+    public Collection<MutationDetails> combineMutants(List<MutationDetails> mutantsOnChange, List<MutationDetails> mutantsAroundChange, List<Integer> changedLines){
         Collection<MutationDetails> combinedHOM = new ArrayList<>();
 
         for (MutationDetails mutantAround : mutantsAroundChange) {
@@ -229,15 +229,11 @@ public class PitestHOMUtilities {
 
                 MutationDetails combinedMutant = new MutationDetails(id, fileName, description, lineNumbers, blocks, isInFinallyBlock, poisonStatus);
 
-                if(outerBehaviour){
-                    combinedMutant.addTestsInOrder(testsForMutantOnLine);
-                }else{
-                    List<TestInfo> testsForMutantAroundLine = this.testPrioritiser.assignTests(mutantAround);
+                List<TestInfo> testsForMutantAroundLine = this.testPrioritiser.assignTests(mutantAround);
 
-                    List<TestInfo> testsUnion = union(testsForMutantOnLine, testsForMutantAroundLine);
+                List<TestInfo> testsUnion = union(testsForMutantOnLine, testsForMutantAroundLine);
 
-                    combinedMutant.addTestsInOrder(testsUnion);
-                }
+                combinedMutant.addTestsInOrder(testsUnion);
 
                 combinedHOM.add(combinedMutant);
             }

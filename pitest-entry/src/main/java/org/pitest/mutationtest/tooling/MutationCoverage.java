@@ -388,22 +388,24 @@ public class MutationCoverage {
 
             if(!this.data.getChanges().isEmpty()){
 
-                String file = "src/main/java/".concat(c.asInternalName().replace(".", "/").concat(".java"));
+                String fileClassName = (c.asInternalName().replace(".", "/")).split("\\$")[0];
+                String file = "src/main/java/".concat(fileClassName).concat(".java");
                 boolean contains = this.data.getChanges().containsKey(file);
                 if(contains){
-                    final List<MutationDetails> foms = new ArrayList<>(source.createMutations(c));
-                    if (!foms.isEmpty()) {
-                        noMutationFound = false;
+                    if(!this.data.getChanges().get(file).isEmpty()) {
+                        final List<MutationDetails> foms = new ArrayList<>(source.createMutations(c));
+                        if (!foms.isEmpty()) {
+                            noMutationFound = false;
+                        }
+
+                        interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
+
+                        List<Integer> changedLinesPerFile = this.data.getChanges().get(file);
+                        List<MutationDetails> mutantsOnLine = pHOM.extractFromChangedLines(foms, changedLinesPerFile);
+                        mutants.addAll(pHOM.combineMutants(mutantsOnLine, foms, changedLinesPerFile));
+
+                        interceptor.end();
                     }
-
-                    interceptor.begin(ClassTree.fromBytes(bas.getBytes(c.asJavaName()).get()));
-
-                    List<Integer> changedLinesPerFile = this.data.getChanges().get(file);
-                    List<MutationDetails> mutantsOnLine = pHOM.extractFromChangedLines(foms, changedLinesPerFile);
-                    mutants.addAll(pHOM.combineMutants(mutantsOnLine, foms, changedLinesPerFile, this.data.getOuterBehaviour()));
-
-                    interceptor.end();
-
                 }else {
                     continue;
                 }
