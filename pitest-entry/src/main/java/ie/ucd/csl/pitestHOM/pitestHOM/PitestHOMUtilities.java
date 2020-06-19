@@ -223,7 +223,8 @@ public class PitestHOMUtilities {
                 }
 
                 List<TestInfo> testsForMutantOnLine = this.testPrioritiser.assignTests(mutantOn);
-                String description = testsForMutantOnLine.stream().map(a -> a.getName()).collect(Collectors.joining("|"));
+//                String description = testsForMutantOnLine.stream().map(a -> a.getName()).collect(Collectors.joining("|"));
+                String description = String.format("%s: %d", mutantOn.getFilename(), mutantsOnChange.size());
 
                 MutationIdentifier id = new MutationIdentifier(locations, indexesList, mutatorsUniqueIDs);
 
