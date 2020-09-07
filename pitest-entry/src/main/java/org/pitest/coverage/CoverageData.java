@@ -54,6 +54,8 @@ public class CoverageData implements CoverageDatabase {
   private final Map<ClassName, Map<ClassLine, Set<TestInfo>>> lineCoverage  = new LinkedHashMap<>();
   private final Map<String, Collection<ClassInfo>>            classesForFile;
 
+  private final Map<BlockLocation, Set<TestInfo>> blockCoverage = new LinkedHashMap<>();
+
   private final CodeSource                                    code;
 
   private final LineMap                                       lm;
@@ -133,7 +135,17 @@ public class CoverageData implements CoverageDatabase {
            i <= each.getLastInsnInBlock(); i++) {
         addTestsToBlockMap(ti, new InstructionLocation(each, i));
       }
+      addTestsToBlockMap(ti, each);
     }
+  }
+
+  private void addTestsToBlockMap(final TestInfo ti, BlockLocation each){
+    Set<TestInfo> tests = this.blockCoverage.get(each);
+    if (tests == null){
+      tests = new TreeSet<TestInfo>(new TestInfoNameComparator());
+      blockCoverage.put(each, tests);
+    }
+    tests.add(ti);
   }
 
   private void addTestsToBlockMap(final TestInfo ti, InstructionLocation each) {
@@ -338,4 +350,11 @@ public class CoverageData implements CoverageDatabase {
     return a -> a.getKey().isFor(clazz);
   }
 
+  protected Map<BlockLocation, Set<Integer>> getBlocksToLines() {
+    return blocksToLines;
+  }
+
+  protected Map<BlockLocation, Set<TestInfo>> getBlockCoverage() {
+    return blockCoverage;
+  }
 }

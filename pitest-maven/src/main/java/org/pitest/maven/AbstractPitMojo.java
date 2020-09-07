@@ -408,7 +408,7 @@ public class AbstractPitMojo extends AbstractMojo {
     switchLogging();
     RunDecision shouldRun = shouldRun();
 
-    if (shouldRun.shouldRun()) {
+    if (shouldRun.shouldRun()) { // add new listeners in resources file
       for (final ToolClasspathPlugin each : this.plugins
           .findToolClasspathPlugins()) {
         this.getLog().info("Found plugin : " + each.description());

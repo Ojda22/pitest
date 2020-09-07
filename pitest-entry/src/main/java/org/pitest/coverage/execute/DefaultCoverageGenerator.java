@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.pitest.classinfo.ClassInfo;
 import org.pitest.classpath.CodeSource;
 import org.pitest.coverage.CoverageData;
+import org.pitest.coverage.CoverageDataLineToClass;
 import org.pitest.coverage.CoverageExporter;
 import org.pitest.coverage.CoverageGenerator;
 import org.pitest.coverage.CoverageResult;
@@ -82,7 +83,7 @@ public class DefaultCoverageGenerator implements CoverageGenerator {
       final Collection<ClassInfo> tests = this.code.getTests();
       this.timings.registerEnd(Timings.Stage.SCAN_CLASS_PATH);
 
-      final CoverageData coverage = new CoverageData(this.code, new LineMapper(
+      final CoverageData coverage = new CoverageDataLineToClass(this.code, new LineMapper(
           this.code));
 
       this.timings.registerStart(Timings.Stage.COVERAGE);

@@ -2,7 +2,6 @@ package org.pitest.mutationtest;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
 import org.pitest.classinfo.ClassName;
 
 /**

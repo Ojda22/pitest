@@ -1,2 +1,4 @@
 org.pitest.mutationtest.report.csv.CSVReportFactory
 org.pitest.mutationtest.report.xml.XMLReportFactory
+org.pitest.mutationtest.report.coverage.CoverageReportFactory
+org.pitest.mutationtest.report.mutantcoverage.MutantCoverageReportFactory

@@ -280,6 +280,7 @@ public class ReportOptions {
     return a -> new File(a);
   }
 
+  // TO_CHANGE
   public Collection<String> getTargetClasses() {
     return this.targetClasses;
   }
