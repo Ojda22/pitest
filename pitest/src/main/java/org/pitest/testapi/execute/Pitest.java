@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.pitest.rewriter.Rewriter;
 import org.pitest.testapi.Configuration;
 import org.pitest.testapi.TestListener;
 import org.pitest.testapi.TestResult;
@@ -54,8 +55,10 @@ public class Pitest {
   private void executeTests(final Container container,
       final List<? extends TestUnit> testUnits) {
     for (final TestUnit unit : testUnits) {
-      final List<TestResult> results = container.execute(unit);
-      processResults(results);
+      synchronized (Pitest.class){
+        final List<TestResult> results = container.execute(unit);
+        processResults(results);
+      }
     }
   }
 

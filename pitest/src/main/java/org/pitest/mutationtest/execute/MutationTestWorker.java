@@ -34,6 +34,7 @@ import org.pitest.mutationtest.engine.Mutater;
 import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationIdentifier;
 import org.pitest.mutationtest.mocksupport.JavassistInterceptor;
+import org.pitest.rewriter.Rewriter;
 import org.pitest.testapi.TestResult;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.execute.Container;
@@ -71,17 +72,20 @@ public class MutationTestWorker {
       final TimeOutDecoratedTestSource testSource) throws IOException {
 
     for (final MutationDetails mutation : range) {
-      if (DEBUG) {
-        LOG.fine("Running mutation " + mutation);
-      }
-      final long t0 = System.currentTimeMillis();
-      processMutation(r, testSource, mutation);
-      if (DEBUG) {
-        LOG.fine("processed mutation in " + (System.currentTimeMillis() - t0)
+      synchronized (MutationTestWorker.class){
+        Rewriter.print("MutationDetails:" + mutation.toString());
+        if (DEBUG) {
+          LOG.fine("Running mutation " + mutation);
+        }
+        LOG.info("Running mutation: " + mutation);
+        final long t0 = System.currentTimeMillis();
+        processMutation(r, testSource, mutation);
+        if (DEBUG) {
+          LOG.fine("processed mutation in " + (System.currentTimeMillis() - t0)
             + " ms.");
+        }
       }
     }
-
   }
 
   private void processMutation(final Reporter r,
@@ -99,6 +103,7 @@ public class MutationTestWorker {
     if (DEBUG) {
       LOG.fine("mutating method " + mutatedClass.getDetails().getMethod());
     }
+    LOG.info("mutating method " + mutatedClass.getDetails().getMethod());
     final List<TestUnit> relevantTests = testSource
         .translateTests(mutationDetails.getTestsInOrder());
 
@@ -111,6 +116,7 @@ public class MutationTestWorker {
     if (DEBUG) {
       LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
     }
+    Rewriter.print("MutationResults " + mutationId + " " + mutationDetected.print());
   }
 
   private MutationStatusTestPair handleMutation(
@@ -137,6 +143,8 @@ public class MutationTestWorker {
       LOG.fine("" + relevantTests.size() + " relevant test for "
           + mutatedClass.getDetails().getMethod());
     }
+    LOG.info("" + relevantTests.size() + " relevant test for "
+            + mutatedClass.getDetails().getMethod());
 
     final Container c = createNewContainer();
     final long t0 = System.currentTimeMillis();
@@ -183,7 +191,7 @@ public class MutationTestWorker {
       final CheckTestHasFailedResultListener listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
 
       final Pitest pit = new Pitest(listener);
-      
+
       if (this.fullMutationMatrix) {
         pit.run(c, tests);
       } else {

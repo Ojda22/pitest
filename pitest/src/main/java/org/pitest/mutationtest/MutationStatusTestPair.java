@@ -99,6 +99,10 @@ public final class MutationStatusTestPair implements Serializable {
 
   }
 
+  public String print(){
+    return "[ Status : " + this.status.name() + ", KillingTests: " + this.killingTests + ", SuccedingTests : " + this.succeedingTests + " ]";
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

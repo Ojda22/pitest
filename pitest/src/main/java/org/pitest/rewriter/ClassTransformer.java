@@ -2,7 +2,6 @@ package org.pitest.rewriter;
 
 import org.pitest.util.Log;
 
-import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -17,13 +16,12 @@ public class ClassTransformer implements ClassFileTransformer {
     private static final Logger LOG = Log.getLogger();
 
     //make white list automatic
-    private final String whiteList = "org/apache/commons/collections4";
+    private String whiteList = Properties.PROJECT_PREFIX;
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
         LOG.info("ClassName: " + className);
-        LOG.info(System.getProperty("user.id") + File.separator + "assert-files");
         try {
             if (className == null){
                 return classfileBuffer;
@@ -58,6 +56,26 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     public ClassTransformer(){
-
+//        BufferedReader br = null;
+//
+//        try {
+//            String sCurrentLine;
+//            br = new BufferedReader(new FileReader("prefix.conf"));
+//
+//            while ((sCurrentLine = br.readLine()) != null) {
+//                whiteList = sCurrentLine;
+//                LOG.info("=======================conf read:" + whiteList);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                if (br != null){
+//                    br.close();
+//                }
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
+//        }
     }
 }
