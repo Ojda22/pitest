@@ -13,6 +13,7 @@ public class Serializer {
 
     public static void serialize(String path, String value){
         BufferedWriter serializer;
+        LOG.info("#### REWRITER PATH: " + path);
         try {
             serializer = new BufferedWriter(new FileWriter(path, true));
             serializer.write(value+"\n");

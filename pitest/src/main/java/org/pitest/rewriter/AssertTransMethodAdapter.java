@@ -46,6 +46,7 @@ public class AssertTransMethodAdapter extends MethodVisitor {
         LOG.info("##HERE IS THE TRANSFORMATION HAPPANING");
         if (shouldTransform(owner, name)){
             mv.visitLdcInsn(this.name.replace("/",".") + ":" + curLine);
+            LOG.info("##Name: " + this.name.replace("/",".") + ":" + curLine);
             mv.visitMethodInsn(opcode, Properties.REWRITER_CLASS_NAME, name, getNewDesc(descriptor), isInterface);
         }else {
             mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);

@@ -2,6 +2,7 @@ package org.pitest.rewriter;
 
 import org.pitest.util.Log;
 
+import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -22,6 +23,7 @@ public class ClassTransformer implements ClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
         LOG.info("ClassName: " + className);
+        LOG.info(System.getProperty("user.id") + File.separator + "assert-files");
         try {
             if (className == null){
                 return classfileBuffer;
