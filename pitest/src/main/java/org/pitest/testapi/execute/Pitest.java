@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.pitest.rewriter.Rewriter;
 import org.pitest.testapi.Configuration;
 import org.pitest.testapi.TestListener;
 import org.pitest.testapi.TestResult;

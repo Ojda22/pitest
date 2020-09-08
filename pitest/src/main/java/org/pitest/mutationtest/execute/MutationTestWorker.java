@@ -34,7 +34,7 @@ import org.pitest.mutationtest.engine.Mutater;
 import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationIdentifier;
 import org.pitest.mutationtest.mocksupport.JavassistInterceptor;
-import org.pitest.rewriter.Rewriter;
+import org.pitest.rewriter.Serializer;
 import org.pitest.testapi.TestResult;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.execute.Container;
@@ -59,6 +59,8 @@ public class MutationTestWorker {
   private final F3<ClassName, ClassLoader, byte[], Boolean> hotswap;
   private final boolean                                     fullMutationMatrix;
 
+  public static MutationDetails mutationDetails;
+
   public MutationTestWorker(
       final F3<ClassName, ClassLoader, byte[], Boolean> hotswap,
       final Mutater mutater, final ClassLoader loader, final boolean fullMutationMatrix) {
@@ -73,7 +75,8 @@ public class MutationTestWorker {
 
     for (final MutationDetails mutation : range) {
       synchronized (MutationTestWorker.class){
-        Rewriter.print("MutationDetails:" + mutation.toString());
+        mutationDetails = mutation;
+//        Rewriter.print("MutationDetails:" + mutation.toString());
         if (DEBUG) {
           LOG.fine("Running mutation " + mutation);
         }
@@ -116,7 +119,8 @@ public class MutationTestWorker {
     if (DEBUG) {
       LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
     }
-    Rewriter.print("MutationResults " + mutationId + " " + mutationDetected.print());
+//    Rewriter.print("MutationResults " + mutationId + " " + mutationDetected.print());
+    Serializer.writeResult("MutationResult:" + mutationId + " " + mutationDetected.print());
   }
 
   private MutationStatusTestPair handleMutation(
