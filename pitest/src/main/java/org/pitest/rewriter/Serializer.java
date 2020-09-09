@@ -1,60 +1,109 @@
 package org.pitest.rewriter;
 
-import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.execute.MutationTestWorker;
 import org.pitest.util.Log;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.logging.Logger;
+import java.util.zip.GZIPOutputStream;
 
 public class Serializer {
 
     public static final Logger LOG = Log.getLogger();
 
-    public static MutationDetails mut = null;
-
     private static final String DIRECTORY = "assertion-files";
 
-    private static Map<String, Integer> dict = new HashMap<String, Integer>();
+    private static Map<String, String> dict = new HashMap<String, String>();
     private static List<ResultItem> resultList = new ArrayList<ResultItem>();
-    private static int idCount = 0;
+    private static Set<ResultItem> set = new HashSet<ResultItem>();
+
+    private static final String columnSeperator = "\t";
+
+    private static BufferedReader bufferedReader;
+
+    static {
+        try {
+            String line;
+
+            bufferedReader = new BufferedReader(new FileReader("index.txt"));
+
+            while ((line = bufferedReader.readLine()) != null){
+                String[] fields = line.split(columnSeperator);
+                dict.put(fields[0] + ":" + fields[2], fields[4]);
+                System.out.println(fields[0] + ":" + fields[2]);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (bufferedReader != null){
+                    bufferedReader.close();
+                }
+            }catch (IOException exception){
+                exception.printStackTrace();
+            }
+        }
+    }
+
 
     public static void serialize(String destination, boolean value){
         LOG.info("#### Destination: " + destination + " Value: " + value);
-        Integer id = getId(destination);
-        resultList.add(new ResultItem(value, id));
+        try {
+            String id = getId(destination);
+            ResultItem resultItem = null;
+            if (id != null){
+                resultItem = new ResultItem(value, id);
+            }
+            if (!set.contains(resultItem)){
+                set.add(resultItem);
+                resultList.add(resultItem);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
-    private static Integer getId(String destination){
+    private static String getId(String destination){
         if (dict.containsKey(destination)){
             return dict.get(destination);
+        }else {
+            LOG.info("NO SUCH ITEM: " + destination);
         }
-        int id = idCount++;
-        dict.put(destination, id);
-        return id;
+        return null;
     }
 
-    public static void writeResult(String result) {
+    public static void writeResult(String result, int instanceCount) {
         BufferedWriter serializer = null;
-        BufferedWriter serializerList = null;
-        String fileName = DIRECTORY + File.separator
+//        BufferedWriter serializerList = null;
+        try {
+            String fileName = DIRECTORY + File.separator
                 + MutationTestWorker.mutationDetails.getId().getClassName() + "."
                 + MutationTestWorker.mutationDetails.getLineNumber() + "."
-                + MutationTestWorker.mutationDetails.getFirstIndex();
-        try {
+                + MutationTestWorker.mutationDetails.getFirstIndex() + "." + System.nanoTime() + instanceCount;
             File outputDir = new File(DIRECTORY);
             if (!outputDir.exists()) {
                 outputDir.mkdir();
             }
-            serializer = new BufferedWriter(new FileWriter(fileName + ".cover", true));
+
+            GZIPOutputStream zip = new GZIPOutputStream(new FileOutputStream(new File(fileName + ".cover.gz")));
+//            serializer = new BufferedWriter(new FileWriter(fileName + ".cover", true));
+
+            serializer = new BufferedWriter(new OutputStreamWriter(zip, "UTF-8"));
+
             serializer.write(MutationTestWorker.mutationDetails.toString() + "\n");
 
             for (ResultItem item : resultList){
@@ -62,22 +111,21 @@ public class Serializer {
             }
             serializer.write(result);
             serializer.flush();
+//            serializerList = new BufferedWriter(new FileWriter(fileName + ".list", true));
 
-            serializerList = new BufferedWriter(new FileWriter(fileName + ".list", true));
+//            for (Entry<String,Integer> item : dict.entrySet()){
+//                serializerList.write(item.getKey() + ":" + item.getValue() + "\n");
+//            }
 
-            for (Entry<String,Integer> item : dict.entrySet()){
-                serializerList.write(item.getKey() + ":" + item.getValue() + "\n");
-            }
-
-            serializerList.flush();
+//            serializerList.flush();
+            resultList.clear();
+            set.clear();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
                 serializer.close();
-                serializerList.close();
-                resultList.clear();
-                dict.clear();
+//                serializerList.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -1,5 +1,7 @@
 package org.pitest.rewriter;
 
+//import org.hamcrest.Matcher;
+
 public class Rewriter {
 
 //    original version under comments. Versions that is using PATH var for serialization destination
@@ -11,6 +13,34 @@ public class Rewriter {
 //    public static void print(String info) {
 //        Serializer.serialize(PATH, info);
 //    }
+
+//    public static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher, String id_assertion){
+//        Serializer.serialize(id_assertion, matcher.matches(actual));
+//    }
+//
+//    public static <T> void assertThat(T actual, Matcher<? super T> matcher, String id_assertion){
+//        Serializer.serialize(id_assertion, matcher.matches(actual));
+//    }
+
+    public static void fail(String id_assertion) {
+        Serializer.serialize(id_assertion, false);
+    }
+
+    public static void fail(String message, String id_assertion) {
+        Serializer.serialize(id_assertion, false);
+    }
+
+    public static void failNotEquals(String message, String id_assertion) {
+        Serializer.serialize(id_assertion, false);
+    }
+
+    public static void failNotSame(String message, Object expected, Object actual, String id_assertion) {
+        Serializer.serialize(id_assertion, false);
+    }
+
+    public static void failSame(String message, String id_assertion) {
+        Serializer.serialize(id_assertion, false);
+    }
 
     public static void assertArrayEquals(boolean[] expecteds, boolean[] actuals, String id_assertion) {
         Serializer.serialize(id_assertion, (Utility.getAssertRes(expecteds, actuals)));
@@ -84,7 +114,23 @@ public class Rewriter {
         Serializer.serialize(id_assertion, (Utility.getAssertRes(expecteds, actuals)));
     }
 
+    public static void assertEquals(byte expected, byte actual, String id_assertion) {
+        Serializer.serialize(id_assertion, expected == actual);
+    }
+
+    public static void assertEquals(String message, byte expected, byte actual, String id_assertion) {
+        Serializer.serialize(id_assertion, expected == actual);
+    }
+
     public static void assertEquals(double expected, double actual, String id_assertion) {
+        Serializer.serialize(id_assertion, (actual == expected));
+    }
+
+    public static void assertEquals(char expected, char actual, String id_assertion) {
+        Serializer.serialize(id_assertion, (actual == expected));
+    }
+
+    public static void assertEquals(String message, char expected, char actual, String id_assertion) {
         Serializer.serialize(id_assertion, (actual == expected));
     }
 
@@ -92,7 +138,15 @@ public class Rewriter {
         Serializer.serialize(id_assertion, (actual == expected));
     }
 
+    public static void assertEquals(String message, int expected, int actual, String id_assertion) {
+        Serializer.serialize(id_assertion, (actual == expected));
+    }
+
     public static void assertEquals(boolean expected, boolean actual, String id_assertion) {
+        Serializer.serialize(id_assertion, (actual == expected));
+    }
+
+    public static void assertEquals(String message, boolean expected, boolean actual, String id_assertion) {
         Serializer.serialize(id_assertion, (actual == expected));
     }
 
@@ -110,6 +164,10 @@ public class Rewriter {
     }
 
     public static void assertEquals(String expected, String actual, String id_assertion) {
+        Serializer.serialize(id_assertion, (actual.equals(expected)));
+    }
+
+    public static void assertEquals(String message, String expected, String actual, String id_assertion) {
         Serializer.serialize(id_assertion, (actual.equals(expected)));
     }
 

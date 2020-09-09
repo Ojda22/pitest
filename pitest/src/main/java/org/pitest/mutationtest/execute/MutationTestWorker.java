@@ -60,6 +60,7 @@ public class MutationTestWorker {
   private final boolean                                     fullMutationMatrix;
 
   public static MutationDetails mutationDetails;
+  public static int instanceCount;
 
   public MutationTestWorker(
       final F3<ClassName, ClassLoader, byte[], Boolean> hotswap,
@@ -120,7 +121,7 @@ public class MutationTestWorker {
       LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
     }
 //    Rewriter.print("MutationResults " + mutationId + " " + mutationDetected.print());
-    Serializer.writeResult("MutationResult:" + mutationId + " " + mutationDetected.print());
+    Serializer.writeResult("MutationResult:" + mutationId + " " + mutationDetected.print(), MutationTestWorker.instanceCount++);
   }
 
   private MutationStatusTestPair handleMutation(

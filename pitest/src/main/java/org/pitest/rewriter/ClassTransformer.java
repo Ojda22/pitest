@@ -39,11 +39,13 @@ public class ClassTransformer implements ClassFileTransformer {
 
             byte[] result = classfileBuffer;
             ClassReader reader = new ClassReader(classfileBuffer);
-            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+//            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+            ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
             ClassVisitor cv = writer;
 
             cv = new NegatorClassAdapter(cv);
-            reader.accept(cv, ClassReader.SKIP_FRAMES);
+//            reader.accept(cv, ClassReader.SKIP_FRAMES);
+            reader.accept(cv, ClassReader.EXPAND_FRAMES);
             result = writer.toByteArray();
             return result;
         }catch (Throwable throwable){
