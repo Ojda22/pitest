@@ -1,26 +1,29 @@
 package org.pitest.rewriter;
 
-//import org.hamcrest.Matcher;
+import org.hamcrest.Matcher;
+import org.pitest.util.Log;
+
+import java.util.logging.Logger;
 
 public class Rewriter {
 
 //    original version under comments. Versions that is using PATH var for serialization destination
 //    public static final String PATH = Properties.REWRITER_DIR;
     public static final String FILENAME = "assertion-output";
-//    private static final Logger LOG = Log.getLogger();
+    private static final Logger LOG = Log.getLogger();
 //    static BufferedReader serializer;
 
 //    public static void print(String info) {
 //        Serializer.serialize(PATH, info);
 //    }
 
-//    public static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher, String id_assertion){
-//        Serializer.serialize(id_assertion, matcher.matches(actual));
-//    }
-//
-//    public static <T> void assertThat(T actual, Matcher<? super T> matcher, String id_assertion){
-//        Serializer.serialize(id_assertion, matcher.matches(actual));
-//    }
+    public static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher, String id_assertion){
+        Serializer.serialize(id_assertion, matcher.matches(actual));
+    }
+
+    public static <T> void assertThat(T actual, Matcher<? super T> matcher, String id_assertion){
+        Serializer.serialize(id_assertion, matcher.matches(actual));
+    }
 
     public static void fail(String id_assertion) {
         Serializer.serialize(id_assertion, false);

@@ -19,6 +19,8 @@ import static org.pitest.functional.prelude.Prelude.or;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -282,6 +284,18 @@ public class ReportOptions {
 
   // TO_CHANGE
   public Collection<String> getTargetClasses() {
+    // create a prefix file with prefix of subject project, to write assertions in it.
+    BufferedWriter writer;
+    try{
+      writer = new BufferedWriter(new FileWriter("./prefix.conf"));
+      String shortest = new ArrayList<String>(this.targetClasses).stream().sorted((e2, e1) -> e1.length() > e2.length() ? -1 : 1).findFirst().get();
+      String prefix = shortest.replace(".","/").replace("*", "");
+      writer.write(prefix);
+      writer.flush();
+      writer.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     return this.targetClasses;
   }
 

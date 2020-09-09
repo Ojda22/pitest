@@ -31,10 +31,6 @@ public final class MultipleTestGroup extends AbstractTestUnit {
     this.children = children;
   }
 
-  public List<TestUnit> getChildren(){
-    return this.children;
-  }
-
   @Override
   public void execute(final ResultCollector rc) {
     for (final TestUnit each : this.children) {

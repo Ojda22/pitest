@@ -21,8 +21,8 @@ public class AssertTransMethodAdapter extends MethodVisitor {
 
     public AssertTransMethodAdapter(MethodVisitor methodVisitor, int access, String classMethodDescription){
         super(Opcodes.ASM5, methodVisitor);
-//        this.name = classMethodDescription;
-        this.name = classMethodDescription.split(":")[0];
+        this.name = classMethodDescription;
+//        this.name = classMethodDescription.split(":")[0];
         this.access = access;
     }
 

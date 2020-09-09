@@ -17,9 +17,10 @@ public class ResultItem {
 
     @Override
     public boolean equals(Object obj) {
-        ResultItem item = (ResultItem)obj;
-        if ((this == item) || (this.assertion == item.assertion && this.id.equals(item.id))
-        )			return true;
+        ResultItem item = (ResultItem) obj;
+        if ((this == item) || (this.assertion == item.assertion && this.id.equals(item.id))) {
+            return true;
+        }
         return false;
     }
 }
