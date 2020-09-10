@@ -27,6 +27,7 @@ public class CheckTestHasFailedResultListener implements TestListener {
   private final List<Description>   failingTests = new ArrayList<>();
   private final boolean       recordPassingTests;
   private int                 testsRun        = 0;
+  private List<TestResult> failingTestsResults = new ArrayList<>();
 
   public CheckTestHasFailedResultListener(boolean recordPassingTests) {
     this.recordPassingTests = recordPassingTests;
@@ -34,12 +35,17 @@ public class CheckTestHasFailedResultListener implements TestListener {
 
   @Override
   public void onTestFailure(final TestResult tr) {
+    this.failingTestsResults.add(tr);
     this.failingTests.add(tr.getDescription());
   }
 
   @Override
   public void onTestSkipped(final TestResult tr) {
 
+  }
+
+  public List<TestResult> getFailingTestsResults() {
+    return failingTestsResults;
   }
 
   @Override

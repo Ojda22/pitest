@@ -35,6 +35,7 @@ import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationIdentifier;
 import org.pitest.mutationtest.mocksupport.JavassistInterceptor;
 import org.pitest.rewriter.Serializer;
+import org.pitest.testapi.Description;
 import org.pitest.testapi.TestResult;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.execute.Container;
@@ -61,6 +62,7 @@ public class MutationTestWorker {
 
   public static MutationDetails mutationDetails;
   public static int instanceCount;
+  public static TestUnit testUnit = null;
 
   public MutationTestWorker(
       final F3<ClassName, ClassLoader, byte[], Boolean> hotswap,
@@ -193,15 +195,42 @@ public class MutationTestWorker {
   private MutationStatusTestPair doTestsDetectMutation(final Container c,
       final List<TestUnit> tests) {
     try {
-      final CheckTestHasFailedResultListener listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
+//      final CheckTestHasFailedResultListener listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
 
-      final Pitest pit = new Pitest(listener);
+      CheckTestHasFailedResultListener listener = null;
+      for(TestUnit tu : tests){
+        listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
 
-      if (this.fullMutationMatrix) {
-        pit.run(c, tests);
-      } else {
-        pit.run(c, createEarlyExitTestGroup(tests));
+        final Pitest pit = new Pitest(listener);
+
+        List<TestUnit> list = new ArrayList<TestUnit>();
+        list.add(tu);
+        testUnit = tu;
+
+        if (this.fullMutationMatrix){
+          pit.run(c, list);
+        }else {
+          pit.run(c, createEarlyExitTestGroup(tests));
+        }
+
+        if (!listener.getFailingTests().isEmpty()){
+          List<TestResult> testsResults = listener.getFailingTestsResults();
+          for (TestResult testResult : testsResults){
+            Description description = testResult.getDescription();
+            String message = testResult.getFailureMessage();
+            Serializer.serialize("FAILEDWITHOUTASSERT_____", false, message);
+          }
+        }
+
       }
+
+//      final Pitest pit = new Pitest(listener);
+//
+//      if (this.fullMutationMatrix) {
+//        pit.run(c, tests);
+//      } else {
+//        pit.run(c, createEarlyExitTestGroup(tests));
+//      }
 
       return createStatusTestPair(listener);
     } catch (final Exception ex) {

@@ -14,6 +14,9 @@
  */
 package org.pitest.testapi;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * @author henry
  *
@@ -34,6 +37,13 @@ public final class TestResult {
     this.description = description;
     this.throwable = t;
     this.state = state;
+  }
+
+  public String getFailureMessage(){
+    StringWriter stringWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(stringWriter);
+    this.throwable.printStackTrace(printWriter);
+    return stringWriter.toString();
   }
 
   public Throwable getThrowable() {

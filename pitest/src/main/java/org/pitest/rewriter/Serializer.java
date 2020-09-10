@@ -20,11 +20,13 @@ public class Serializer {
 
     public static final Logger LOG = Log.getLogger();
 
-    private static final String DIRECTORY = "assertion-files";
+    private static final String DIRECTORY = "mutation-assertion";
 
     private static Map<String, String> dict = new HashMap<String, String>();
     private static List<ResultItem> resultList = new ArrayList<ResultItem>();
-    private static Set<ResultItem> set = new HashSet<ResultItem>();
+//    private static Set<ResultItem> set = new HashSet<ResultItem>();
+    private static Set<String> set = new HashSet<String>();
+    private static List<String> list = new ArrayList<String>();
 
     private static final String columnSeperator = "\t";
 
@@ -56,19 +58,23 @@ public class Serializer {
     }
 
 
-    public static void serialize(String destination, boolean value){
-        LOG.info("#### Destination: " + destination + " Value: " + value);
+    public static void serialize(String assertID, boolean value, String content){
+        LOG.info("#### Destination: " + assertID + " Value: " + value);
         try {
-//            String id = getId(destination);
-            ResultItem resultItem = new ResultItem(value, destination);
-//            if (id != null){
-//                resultItem = new ResultItem(value, id);
-//            }
-//            if (!set.contains(resultItem)){
-//                set.add(resultItem);
-//                resultList.add(resultItem);
-//            }
-            resultList.add(resultItem);
+////            String id = getId(assertID);
+//            ResultItem resultItem = new ResultItem(value, assertID);
+////            if (id != null){
+////                resultItem = new ResultItem(value, id);
+////            }
+////            if (!set.contains(resultItem)){
+////                set.add(resultItem);
+////                resultList.add(resultItem);
+////            }
+//            resultList.add(resultItem);
+            String key = assertID.trim() + ":" + MutationTestWorker.testUnit.getDescription().getQualifiedName() + ":" + value + ":" + content;
+            if (!set.contains(key)){
+                set.add(assertID.trim() + ":" + MutationTestWorker.testUnit.getDescription().getQualifiedName());
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -103,11 +109,17 @@ public class Serializer {
 
             serializer.write(MutationTestWorker.mutationDetails.toString() + "\n");
 
-            for (ResultItem item : resultList){
-                serializer.write(item.id + ":" + (item.assertion ? 1:0) + "\n");
+//            for (ResultItem item : resultList){
+//                serializer.write(item.id + ":" + (item.assertion ? 1:0) + "\n");
+//            }
+
+            for(String item : set){
+                serializer.write(item + "\n");
             }
+
             serializer.write(result);
             serializer.flush();
+
 //            serializerList = new BufferedWriter(new FileWriter(fileName + ".list", true));
 
 //            for (Entry<String,Integer> item : dict.entrySet()){
@@ -117,6 +129,7 @@ public class Serializer {
 //            serializerList.flush();
             resultList.clear();
             set.clear();
+            list.clear();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
