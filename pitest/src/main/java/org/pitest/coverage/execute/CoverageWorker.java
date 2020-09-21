@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.pitest.coverage.CoverageReceiver;
+import org.pitest.rewriter.Serializer;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.execute.Container;
 import org.pitest.testapi.execute.Pitest;
@@ -45,10 +46,23 @@ public class CoverageWorker {
 
       Collections.sort(decoratedTests, testComparator());
 
-      final Container c = new UnContainer();
+//      final Container c = new UnContainer();
+//      final Pitest pit = new Pitest(new ErrorListener());
+//      pit.run(c, decoratedTests);
 
-      final Pitest pit = new Pitest(new ErrorListener());
-      pit.run(c, decoratedTests);
+      int i = 0;
+      for (TestUnit tu : decoratedTests) {
+        Serializer.serializeCoverage( tu.getDescription().getQualifiedName());
+        List<TestUnit> l = new ArrayList<TestUnit>();
+        l.add(tu);
+        final Container c = new UnContainer();
+        ErrorListener listener=new ErrorListener();
+        final Pitest pit = new Pitest(listener);
+
+        pit.run(c, l);
+
+        Serializer.writeCoverageResult(i++, listener.pass, listener.errorMessage);
+      }
 
     } catch (final Exception ex) {
       throw translateCheckedException(ex);

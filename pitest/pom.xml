@@ -97,6 +97,8 @@
 							<artifactSet>
 								<includes>
 									<include>org.ow2.asm:*</include>
+									<include>commons-codec:*</include>
+									<include>com.thoughtworks.xstream:*</include>
 								</includes>
 							</artifactSet>
 
@@ -176,6 +178,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.9</version>
+		</dependency>
+		<dependency>
 			<groupId>org.ow2.asm</groupId>
 			<artifactId>asm</artifactId>
 			<version>${asm.version}</version>
@@ -250,7 +257,7 @@
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
             <version>1.4.8</version>
-            <scope>test</scope>
+<!--            <scope>test</scope>-->
 		</dependency>
 	</dependencies>
 

@@ -1,8 +1,15 @@
 package org.pitest.rewriter;
 
+import org.pitest.util.Log;
+
+import java.util.Arrays;
+import java.util.logging.Logger;
+
 public class AssertParser {
 
     public static final String splitter = ",";
+
+    private static final Logger LOG = Log.getLogger();
 
     /**
      * Compute object address for "==" computation: Use System.identityHashCode
@@ -13,122 +20,48 @@ public class AssertParser {
      */
     @Deprecated
     public static String getObjectAddress(Object o) {
+        LOG.info("<<<<< Object address: " + o.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(o)));
         return o.getClass().getName() + "@" + Integer.toHexString(System.identityHashCode(o));
     }
 
-    /**
-     * Compute object content via transforming the object into XML format (using
-     * XStream), since the hashCode of object changed during different runs
-     *
-     * @param object
-     * @return XML string of o
-     */
-    public static String getObjectContent(Object object) {
-        if (object == null) {
-            return "";
-        }else{
-//            return new XStream(new StaxDriver()).toXML(object).replace("\n", "").replace(" ", "");
-            return object.toString();
-        }
-    }
-
-    public static String getArrayContents(Object[] os) {
-        String content = "";
-        if (os == null) {
-            return content;
-        }
-        for (Object o : os) {
-            content = content + getObjectContent(o) + splitter;
-        }
-        return content;
-    }
-
     public static String getArrayContents(boolean[] bs) {
-        String content = "";
-        if (bs == null) {
-            return content;
-        }
-        for (boolean b : bs) {
-            content = content + b + splitter;
-        }
-        return content;
+        LOG.info("<<<<< Assert content: " + Arrays.toString(bs));
+        return Arrays.toString(bs);
     }
 
     public static String getArrayContents(char[] cs) {
-        String content = "";
-        if (cs == null) {
-            return content;
-        }
-        for (char c : cs) {
-            content = content + c + splitter;
-        }
-        return content;
+        LOG.info("<<<<< Assert content: " + Arrays.toString(cs));
+        return Arrays.toString(cs);
     }
 
     public static String getArrayContents(byte[] bs) {
-        String content = "";
-        if (bs == null) {
-            return content;
-        }
-        for (byte b : bs) {
-            content = content + b + splitter;
-        }
-        return content;
+        LOG.info("<<<<< Assert content: " + Arrays.toString(bs));
+        return Arrays.toString(bs);
     }
 
-    public static String getArrayContents(int[] bs) {
-        String content = "";
-        if (bs == null) {
-            return content;
-        }
-        for (int b : bs) {
-            content = content + b + splitter;
-        }
-        return content;
+    public static String getArrayContents(int[] is) {
+        LOG.info("<<<<< Assert content: " + Arrays.toString(is));
+        return Arrays.toString(is);
     }
 
     public static String getArrayContents(float[] bs) {
-        String content = "";
-        if (bs == null) {
-            return content;
-        }
-        for (float b : bs) {
-            content = content + b + splitter;
-        }
-        return content;
+        LOG.info("<<<<< Assert content: " + Arrays.toString(bs));
+        return Arrays.toString(bs);
     }
 
     public static String getArrayContents(double[] bs) {
-        String content = "";
-        if (bs == null) {
-            return content;
-        }
-        for (double b : bs) {
-            content = content + b + splitter;
-        }
-        return content;
+        LOG.info("<<<<< Assert content: " + Arrays.toString(bs));
+        return Arrays.toString(bs);
     }
 
     public static String getArrayContents(long[] bs) {
-        String content = "";
-        if (bs == null) {
-            return content;
-        }
-        for (long b : bs) {
-            content = content + b + splitter;
-        }
-        return content;
+        LOG.info("<<<<< Assert content: " + Arrays.toString(bs));
+        return Arrays.toString(bs);
     }
 
     public static String getArrayContents(short[] bs) {
-        String content = "";
-        if (bs == null) {
-            return content;
-        }
-        for (short b : bs) {
-            content = content + b + splitter;
-        }
-        return content;
+        LOG.info("<<<<< Assert content: " + Arrays.toString(bs));
+        return Arrays.toString(bs);
     }
 
 }

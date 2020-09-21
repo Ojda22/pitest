@@ -151,6 +151,8 @@ public class ReportOptions {
 
   private boolean outerBehaviour;
 
+  private boolean assertionCache;
+
   public void setChangedLinesOnFile(final Map<String, List<Integer>> map){
     this.changes = map;
   }
@@ -282,7 +284,6 @@ public class ReportOptions {
     return a -> new File(a);
   }
 
-  // TO_CHANGE
   public Collection<String> getTargetClasses() {
     // create a prefix file with prefix of subject project, to write assertions in it.
     BufferedWriter writer;
@@ -291,6 +292,8 @@ public class ReportOptions {
       String shortest = new ArrayList<String>(this.targetClasses).stream().sorted((e2, e1) -> e1.length() > e2.length() ? -1 : 1).findFirst().get();
       String prefix = shortest.replace(".","/").replace("*", "");
       writer.write(prefix);
+      //      writer.write("targetProject=" + prefix + "\n");
+//      writer.write("assertionCache=" + this.assertionCache);
       writer.flush();
       writer.close();
     } catch (IOException e) {
@@ -670,8 +673,16 @@ public class ReportOptions {
     this.outerBehaviour = outerBehaviour;
   }
 
+  public void setAssertionCache(boolean assertionCache){
+    this.assertionCache = assertionCache;
+  }
+
   public boolean getOuterBehaviour() {
     return this.outerBehaviour;
+  }
+
+  public boolean getAssertionCache(){
+    return this.assertionCache;
   }
 
   @Override

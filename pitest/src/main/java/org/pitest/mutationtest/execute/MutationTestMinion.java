@@ -17,6 +17,7 @@ package org.pitest.mutationtest.execute;
 import java.io.IOException;
 import java.lang.management.MemoryNotificationInfo;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -73,8 +74,7 @@ public class MutationTestMinion {
   public void run() {
     try {
 
-      final MinionArguments paramsFromParent = this.dis
-          .read(MinionArguments.class);
+      final MinionArguments paramsFromParent = this.dis.read(MinionArguments.class);
 
       Log.setVerbose(paramsFromParent.isVerbose());
 
@@ -83,11 +83,9 @@ public class MutationTestMinion {
       final ClassByteArraySource byteSource = new CachingByteArraySource(new ClassloaderByteArraySource(
           loader), CACHE_SIZE);
 
-      final F3<ClassName, ClassLoader, byte[], Boolean> hotswap = new HotSwap(
-          byteSource);
+      final F3<ClassName, ClassLoader, byte[], Boolean> hotswap = new HotSwap(byteSource);
 
       final MutationEngine engine = createEngine(paramsFromParent.engine, paramsFromParent.engineArgs);
-
 
       final MutationTestWorker worker = new MutationTestWorker(hotswap,
           engine.createMutator(byteSource), loader, paramsFromParent.fullMutationMatrix);
@@ -95,9 +93,10 @@ public class MutationTestMinion {
       final List<TestUnit> tests = findTestsForTestClasses(loader,
           paramsFromParent.testClasses, createTestPlugin(paramsFromParent.pitConfig));
 
-      worker.run(paramsFromParent.mutations, this.reporter,
-          new TimeOutDecoratedTestSource(paramsFromParent.timeoutStrategy,
-              tests, this.reporter));
+      LOG.info("<<<<< Test classes: " + Arrays.toString(paramsFromParent.testClasses.toArray()));
+      LOG.info("<<<<< Tests found: " + tests.size());
+
+      worker.run(paramsFromParent.mutations, this.reporter, new TimeOutDecoratedTestSource(paramsFromParent.timeoutStrategy, tests, this.reporter));
 
       this.reporter.done(ExitCode.OK);
     } catch (final Throwable ex) {

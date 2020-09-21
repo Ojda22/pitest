@@ -189,6 +189,7 @@ public class MojoToReportOptionsConverter {
         }
 
         data.setOuterBehaviour(this.mojo.getOuterBehaviour());
+        data.setAssertionCache(this.mojo.getAssertionCache());
 
         data.setSkipFailingTests(this.mojo.skipFailingTests());
 

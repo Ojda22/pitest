@@ -37,9 +37,6 @@ public class ClassTransformer implements ClassFileTransformer {
              return classfileBuffer;
             }
 
-            LOG.info("Property: " + whiteList);
-            LOG.info("Transformer for class: " + className);
-
             byte[] result = classfileBuffer;
             ClassReader reader = new ClassReader(classfileBuffer);
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);

@@ -45,7 +45,7 @@ public class CheckTestHasFailedResultListener implements TestListener {
   }
 
   public List<TestResult> getFailingTestsResults() {
-    return failingTestsResults;
+    return this.failingTestsResults;
   }
 
   @Override
@@ -78,6 +78,10 @@ public class CheckTestHasFailedResultListener implements TestListener {
 
   public int getNumberOfTestsRun() {
     return this.testsRun;
+  }
+
+  public void setNumberOfTestsRun(int testsRun) {
+    this.testsRun = testsRun;
   }
 
   @Override

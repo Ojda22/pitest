@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Arrays;
 
 import org.pitest.classinfo.ClassName;
 import org.pitest.coverage.ClassLine;
@@ -77,6 +78,11 @@ public final class MutationDetails implements Serializable {
             + ", mutators = " + this.getMutators()
             + ", testsInOrder=" + testsInOrder + ", isInFinallyBlock="
             + isInFinallyBlock + ", poison=" + poison + "]";
+  }
+
+  public String printShortDescription(){
+    return "File name: " + this.filename + " - Class name: " + this.id.getClassName().asJavaName() + " - Line numbers: " + Arrays.toString(this.lineNumbers.toArray()) + " - Indexes:"
+            + Arrays.toString(this.id.getIndexes().toArray()) + " - Mutators: " + Arrays.toString(this.id.getMutators().toArray());
   }
 
   public MutationDetails withDescription(String desc) {

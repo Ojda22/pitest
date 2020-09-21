@@ -79,7 +79,6 @@ public class MutationTestWorker {
     for (final MutationDetails mutation : range) {
       synchronized (MutationTestWorker.class){
         mutationDetails = mutation;
-//        Rewriter.print("MutationDetails:" + mutation.toString());
         if (DEBUG) {
           LOG.fine("Running mutation " + mutation);
         }
@@ -122,8 +121,7 @@ public class MutationTestWorker {
     if (DEBUG) {
       LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
     }
-//    Rewriter.print("MutationResults " + mutationId + " " + mutationDetected.print());
-    Serializer.writeResult("MutationResult:" + mutationId + " " + mutationDetected.print(), MutationTestWorker.instanceCount++);
+    Serializer.writeResult("", MutationTestWorker.instanceCount++);
   }
 
   private MutationStatusTestPair handleMutation(
@@ -213,12 +211,12 @@ public class MutationTestWorker {
           pit.run(c, createEarlyExitTestGroup(tests));
         }
 
-        if (!listener.getFailingTests().isEmpty()){
+        if (!listener.getFailingTestsResults().isEmpty()){
           List<TestResult> testsResults = listener.getFailingTestsResults();
           for (TestResult testResult : testsResults){
             Description description = testResult.getDescription();
             String message = testResult.getFailureMessage();
-            Serializer.serialize("FAILEDWITHOUTASSERT_____", false, message);
+            Serializer.serialize(Serializer.EXP, false, message);
           }
         }
 

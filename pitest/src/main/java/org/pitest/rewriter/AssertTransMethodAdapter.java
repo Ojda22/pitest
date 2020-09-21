@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 public class AssertTransMethodAdapter extends MethodVisitor {
@@ -51,13 +52,13 @@ public class AssertTransMethodAdapter extends MethodVisitor {
         assertionDictionary.put("fail", new HashSet<String>(descriptionSet));
         descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;[Ljava/lang/Object;[Ljava/lang/Object;)V", "([Ljava/lang/Object;[Ljava/lang/Object;)V",
-                 "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
+        Collections.addAll(descriptionSet, "(Ljava/lang/String;[Ljava/lang/Object;[Ljava/lang/Object;)V","([Ljava/lang/Object;[Ljava/lang/Object;)V",
+                "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
                 , "(Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
                 , "(Ljava/lang/String;Ljava/lang/String;)V", "(Ljava/lang/String;DDD)V",
-                 "(DDD)V", "(Ljava/lang/String;FFF)V", "(FFF)V", "(Ljava/lang/String;JJ)V", "(JJ)V", "(Ljava/lang/String;ZZ)V"
+                "(DDD)V", "(Ljava/lang/String;FFF)V", "(FFF)V", "(Ljava/lang/String;JJ)V", "(JJ)V","(Ljava/lang/String;ZZ)V"
                 , "(ZZ)V", "(Ljava/lang/String;BB)V", "(BB)V", "(Ljava/lang/String;CC)V", "(CC)V", "((Ljava/lang/String;SS)V"
-                , "(SS)V", "(Ljava/lang/String;II)V", "(II)V");
+                ,"(SS)V", "(Ljava/lang/String;II)V", "(II)V");
 
         assertionDictionary.put("assertEquals", new HashSet<String>(descriptionSet));
         descriptionSet.clear();
@@ -88,10 +89,10 @@ public class AssertTransMethodAdapter extends MethodVisitor {
 
         Collections.addAll(descriptionSet, "(Ljava/lang/String;[Ljava/lang/Object;[Ljava/lang/Object;)V"
                 , "([Ljava/lang/Object;[Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
-                , "(Ljava/lang/String;[B[B)V", "([B[B)V", "(Ljava/lang/String;[D[DD)V",
-                 "([D[DD)V", "(Ljava/lang/String;[F[FF)V", "([F[FF)V", "(Ljava/lang/String;[J[J)V", "([J[J)V", "(Ljava/lang/String;[Z[Z)V"
-                , "([Z[Z)V", "(Ljava/lang/String;[C[C)V", "([C[C)V", "((Ljava/lang/String;[S[S)V"
-                , "([S[S)V", "(Ljava/lang/String;[I[I)V", "([I[I)V");
+                , "(Ljava/lang/String;[B[B)V", "([B[B)V","(Ljava/lang/String;[D[DD)V",
+                "([D[DD)V", "(Ljava/lang/String;[F[FF)V", "([F[FF)V", "(Ljava/lang/String;[J[J)V", "([J[J)V","(Ljava/lang/String;[Z[Z)V"
+                , "([Z[Z)V",   "(Ljava/lang/String;[C[C)V", "([C[C)V", "((Ljava/lang/String;[S[S)V"
+                ,"([S[S)V", "(Ljava/lang/String;[I[I)V", "([I[I)V");
         assertionDictionary.put("assertArrayEquals", new HashSet<String>(descriptionSet));
         descriptionSet.clear();
 
@@ -102,6 +103,12 @@ public class AssertTransMethodAdapter extends MethodVisitor {
         Collections.addAll(descriptionSet, "(Ljava/lang/Object;Lorg/hamcrest/Matcher;Ljava/lang/String;)V","(Ljava/lang/String;Ljava/lang/Object;Lorg/hamcrest/Matcher;Ljava/lang/String;)V");
         assertionDictionary.put("assertThat", new HashSet<String>(descriptionSet));
         descriptionSet.clear();
+
+        LOG.info("<<<<< Assertion dictonary contains:");
+        for(Entry<String, Set<String>> entrySet : assertionDictionary.entrySet()){
+            LOG.info("<<<< " + entrySet.getKey());
+            LOG.info("<<<<<<<< Contains descriptions: " + entrySet.getValue().size());
+        }
 
     }
 
@@ -128,7 +135,7 @@ public class AssertTransMethodAdapter extends MethodVisitor {
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String descriptor, boolean isInterface) {
         if (shouldTransform(owner, descriptor, name, opcode)){
             mv.visitLdcInsn(this.classname.replace("/",".") + ":" + curLine + ":" + name + "\n");
-            LOG.info("#### ShouldTransfromMethod:" + this.classname.replace("/",".") + ":" + curLine + ":" + name + "\n");
+//            LOG.info("<<<<< Transforming assertID:" + this.classname.replace("/",".") + ":" + curLine + ":" + name + "\n");
             mv.visitMethodInsn(opcode, Properties.REWRITER_CLASS_NAME, name, getNewDesc(descriptor), isInterface);
         }else {
             mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);

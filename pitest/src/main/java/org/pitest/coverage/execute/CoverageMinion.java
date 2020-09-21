@@ -39,6 +39,7 @@ import org.pitest.mutationtest.config.ClientPluginServices;
 import org.pitest.mutationtest.config.MinionSettings;
 import org.pitest.mutationtest.mocksupport.BendJavassistToMyWillTransformer;
 import org.pitest.mutationtest.mocksupport.JavassistInputStreamInterceptorAdapater;
+import org.pitest.rewriter.ClassTransformer;
 import org.pitest.testapi.Configuration;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.execute.FindTestUnits;
@@ -78,6 +79,8 @@ public class CoverageMinion {
 
       CodeCoverageStore.init(invokeQueue);
 
+      LOG.info("<<<<< ADD ClassTransformer");
+      HotSwapAgent.addTransformer(new ClassTransformer());
       HotSwapAgent.addTransformer(new CoverageTransformer(
           convertToJVMClassFilter(paramsFromParent.getFilter())));
 

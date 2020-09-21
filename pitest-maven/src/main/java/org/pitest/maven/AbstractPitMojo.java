@@ -385,6 +385,9 @@ public class AbstractPitMojo extends AbstractMojo {
   @Parameter(defaultValue = "false", property="outerBehaviour")
   private boolean outerBehaviour;
 
+  @Parameter(defaultValue = "false", property = "assertionCache")
+  private boolean assertionCache;
+
   private final GoalStrategy          goalStrategy;
 
   public AbstractPitMojo() {
@@ -669,6 +672,10 @@ public class AbstractPitMojo extends AbstractMojo {
 
   public boolean getOuterBehaviour() {
     return this.outerBehaviour;
+  }
+
+  public boolean getAssertionCache(){
+    return this.assertionCache;
   }
 
   public String getJavaExecutable() {

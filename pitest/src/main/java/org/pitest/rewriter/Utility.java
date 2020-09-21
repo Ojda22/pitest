@@ -61,7 +61,7 @@ public class Utility {
             return expecteds == actuals;
         }
         boolean value = true;
-        if (expecteds.length != actuals.length) {
+        if (expecteds.length != actuals.length){
             value = false;
         } else {
             for (int i = 0; i < expecteds.length; i++) {
@@ -137,12 +137,13 @@ public class Utility {
             value = false;
         } else {
             for (int i = 0; i < expecteds.length; i++) {
-                if (expecteds[i] == null){
-                    if (actuals[i] != null){
+                // bug fix
+                if (expecteds[i] == null) {
+                    if (actuals[i] != null) {
                         value = false;
                         break;
                     }
-                }else if (!expecteds[i].equals(actuals[i])){
+                } else if (!expecteds[i].equals(actuals[i])) {
                     value = false;
                     break;
                 }
@@ -151,12 +152,13 @@ public class Utility {
         return value;
     }
 
-    public static boolean getAssertRes(double[] expecteds, double[] actuals, double delta) {
+    public static boolean getAssertRes(double[] expecteds, double[] actuals,
+                                       double delta) {
         if (expecteds == null || actuals == null) {
             return expecteds == actuals;
         }
         boolean value = true;
-        if (expecteds.length != actuals.length) {
+        if (expecteds.length != actuals.length){
             value = false;
         } else {
             for (int i = 0; i < expecteds.length; i++) {
@@ -211,5 +213,6 @@ public class Utility {
         }
         return expected.equals(actual);
     }
+
 
 }

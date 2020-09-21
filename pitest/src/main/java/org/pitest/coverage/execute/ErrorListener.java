@@ -11,6 +11,9 @@ import org.pitest.util.Log;
 public class ErrorListener implements TestListener {
   private static final Logger LOG = Log.getLogger();
 
+  public boolean pass = true;
+  public String errorMessage = "PASS";
+
   @Override
   public void onRunStart() {
   }
@@ -21,6 +24,8 @@ public class ErrorListener implements TestListener {
 
   @Override
   public void onTestFailure(final TestResult tr) {
+    pass = false;
+    errorMessage = tr.getFailureMessage();
     LOG.log(Level.SEVERE, tr.getDescription().toString(), tr.getThrowable());
   }
 

@@ -14,8 +14,10 @@
  */
 package org.pitest.testapi;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import org.pitest.rewriter.Serializer;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author henry
@@ -40,10 +42,21 @@ public final class TestResult {
   }
 
   public String getFailureMessage(){
-    StringWriter stringWriter = new StringWriter();
-    PrintWriter printWriter = new PrintWriter(stringWriter);
-    this.throwable.printStackTrace(printWriter);
-    return stringWriter.toString();
+    StackTraceElement[] frames = this.throwable.getStackTrace();// printStackTrace(pr);
+    Set<String> set = new HashSet<String>();
+    String res = this.throwable.toString();
+    res = res + " " + Serializer.STRACE;
+    for (StackTraceElement frame : frames) {
+      // if(frame.isNativeMethod())
+      // break;
+      String line = frame.toString();
+      if (!set.contains(line)) {
+        res += " " + line;
+        set.add(line);
+      }
+    }
+    set.clear();
+    return res.replaceAll("\n", " ").replaceAll("\r", " ");
   }
 
   public Throwable getThrowable() {
