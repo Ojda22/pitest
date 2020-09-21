@@ -8,8 +8,13 @@ import java.io.IOException;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -58,26 +63,61 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     public ClassTransformer(){
+//        BufferedReader br = null;
+//
+//        try {
+//            String sCurrentLine;
+//            br = new BufferedReader(new FileReader("prefix.conf"));
+//
+//            while ((sCurrentLine = br.readLine()) != null) {
+//                whiteList = sCurrentLine;
+//                LOG.info("=======================conf read:" + whiteList);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                if (br != null){
+//                    br.close();
+//                }
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+        this.whiteList = readConfig().get("targetProject");
+        LOG.info("READ CONFIG: ");
+        LOG.info(readConfig().get("targetProject"));
+        LOG.info(readConfig().get("assertionCache"));
+        LOG.info(readConfig().get("coverageCache"));
+    }
+
+    public static Map<String,String> readConfig() {
         BufferedReader br = null;
 
+        Map<String, String> confMap = new HashMap<>();
         try {
-            String sCurrentLine;
+            List<String> lines;
             br = new BufferedReader(new FileReader("prefix.conf"));
-
-            while ((sCurrentLine = br.readLine()) != null) {
-                whiteList = sCurrentLine;
-                LOG.info("=======================conf read:" + whiteList);
+            lines = br.lines().collect(Collectors.toList());
+            for (String line : lines) {
+                if (line.contains("=")) {
+                    String key = line.split("=")[0];
+                    String value = line.split("=")[1];
+                    confMap.put(key, value);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                if (br != null){
+                if (br != null) {
                     br.close();
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        return confMap;
     }
+
 }

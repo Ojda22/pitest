@@ -153,6 +153,8 @@ public class ReportOptions {
 
   private boolean assertionCache;
 
+  private boolean coverageCache;
+
   public void setChangedLinesOnFile(final Map<String, List<Integer>> map){
     this.changes = map;
   }
@@ -291,9 +293,10 @@ public class ReportOptions {
       writer = new BufferedWriter(new FileWriter("./prefix.conf"));
       String shortest = new ArrayList<String>(this.targetClasses).stream().sorted((e2, e1) -> e1.length() > e2.length() ? -1 : 1).findFirst().get();
       String prefix = shortest.replace(".","/").replace("*", "");
-      writer.write(prefix);
-      //      writer.write("targetProject=" + prefix + "\n");
-//      writer.write("assertionCache=" + this.assertionCache);
+//      writer.write(prefix);
+      writer.write("targetProject=" + prefix + "\n");
+      writer.write("assertionCache=" + this.assertionCache + "\n");
+      writer.write("coverageCache=" + this.coverageCache);
       writer.flush();
       writer.close();
     } catch (IOException e) {
@@ -683,6 +686,14 @@ public class ReportOptions {
 
   public boolean getAssertionCache(){
     return this.assertionCache;
+  }
+
+  public boolean isCoverageCache() {
+    return coverageCache;
+  }
+
+  public void setCoverageCache(boolean coverageCache) {
+    this.coverageCache = coverageCache;
   }
 
   @Override
