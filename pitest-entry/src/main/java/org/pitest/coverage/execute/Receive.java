@@ -12,6 +12,7 @@ import org.pitest.coverage.BlockLocation;
 import org.pitest.coverage.CoverageResult;
 import org.pitest.mutationtest.engine.Location;
 import org.pitest.mutationtest.engine.MethodName;
+import org.pitest.rewriter.ClassTransformer;
 import org.pitest.testapi.Description;
 import org.pitest.util.Id;
 import org.pitest.util.ReceiveStrategy;
@@ -93,9 +94,14 @@ final class Receive implements ReceiveStrategy {
       final Description d, Collection<BlockLocation> visitedBlocks) {
     final boolean isGreen = is.readBoolean();
     final int executionTime = is.readInt();
-//    final CoverageResult cr = new CoverageResult(d, executionTime, isGreen, visitedBlocks);
-    final CoverageResult cr = new CoverageResult(d, executionTime, true, visitedBlocks);
-    return cr;
+    boolean isAssertionCache = Boolean.parseBoolean(ClassTransformer.getConfiguration().get("assertionCache"));
+    if (isAssertionCache) {
+      final CoverageResult cr = new CoverageResult(d, executionTime, true, visitedBlocks);
+      return cr;
+    }else {
+      final CoverageResult cr = new CoverageResult(d, executionTime, isGreen, visitedBlocks);
+      return cr;
+    }
   }
 
 }

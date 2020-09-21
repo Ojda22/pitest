@@ -34,6 +34,7 @@ import org.pitest.mutationtest.engine.Mutater;
 import org.pitest.mutationtest.engine.MutationDetails;
 import org.pitest.mutationtest.engine.MutationIdentifier;
 import org.pitest.mutationtest.mocksupport.JavassistInterceptor;
+import org.pitest.rewriter.ClassTransformer;
 import org.pitest.rewriter.Serializer;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.TestResult;
@@ -63,6 +64,7 @@ public class MutationTestWorker {
   public static MutationDetails mutationDetails;
   public static int instanceCount;
   public static TestUnit testUnit = null;
+  public boolean isAssertionCache;
 
   public MutationTestWorker(
       final F3<ClassName, ClassLoader, byte[], Boolean> hotswap,
@@ -71,23 +73,38 @@ public class MutationTestWorker {
     this.mutater = mutater;
     this.hotswap = hotswap;
     this.fullMutationMatrix = fullMutationMatrix;
+    this.isAssertionCache = Boolean.parseBoolean(ClassTransformer.getConfiguration().get("assertionCache"));
   }
 
   protected void run(final Collection<MutationDetails> range, final Reporter r,
       final TimeOutDecoratedTestSource testSource) throws IOException {
 
-    for (final MutationDetails mutation : range) {
-      synchronized (MutationTestWorker.class){
-        mutationDetails = mutation;
+    if (isAssertionCache) {
+      for (final MutationDetails mutation : range) {
+        synchronized (MutationTestWorker.class) {
+          mutationDetails = mutation;
+          if (DEBUG) {
+            LOG.fine("Running mutation " + mutation);
+          }
+          LOG.info("Running mutation: " + mutation);
+          final long t0 = System.currentTimeMillis();
+          processMutation(r, testSource, mutation);
+          if (DEBUG) {
+            LOG.fine("processed mutation in " + (System.currentTimeMillis() - t0)
+                    + " ms.");
+          }
+        }
+      }
+    } else {
+      for (final MutationDetails mutation : range) {
         if (DEBUG) {
           LOG.fine("Running mutation " + mutation);
         }
-        LOG.info("Running mutation: " + mutation);
         final long t0 = System.currentTimeMillis();
         processMutation(r, testSource, mutation);
         if (DEBUG) {
           LOG.fine("processed mutation in " + (System.currentTimeMillis() - t0)
-            + " ms.");
+                  + " ms.");
         }
       }
     }
@@ -121,7 +138,9 @@ public class MutationTestWorker {
     if (DEBUG) {
       LOG.fine("Mutation " + mutationId + " detected = " + mutationDetected);
     }
-    Serializer.writeResult("", MutationTestWorker.instanceCount++);
+    if (isAssertionCache) {
+      Serializer.writeResult("", MutationTestWorker.instanceCount++);
+    }
   }
 
   private MutationStatusTestPair handleMutation(
@@ -193,48 +212,48 @@ public class MutationTestWorker {
   private MutationStatusTestPair doTestsDetectMutation(final Container c,
       final List<TestUnit> tests) {
     try {
-//      final CheckTestHasFailedResultListener listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
+      if (isAssertionCache){
+        CheckTestHasFailedResultListener listener = null;
+        for(TestUnit tu : tests){
+          listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
 
-      CheckTestHasFailedResultListener listener = null;
-      for(TestUnit tu : tests){
-        listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
+          final Pitest pit = new Pitest(listener);
+
+          List<TestUnit> list = new ArrayList<TestUnit>();
+          list.add(tu);
+          testUnit = tu;
+
+          if (this.fullMutationMatrix){
+            pit.run(c, list);
+          }else {
+            pit.run(c, createEarlyExitTestGroup(tests));
+          }
+
+          if (!listener.getFailingTestsResults().isEmpty()){
+            List<TestResult> testsResults = listener.getFailingTestsResults();
+            for (TestResult testResult : testsResults){
+              Description description = testResult.getDescription();
+              String message = testResult.getFailureMessage();
+              Serializer.serialize(Serializer.EXP, false, message);
+            }
+          }
+        }
+        return createStatusTestPair(listener);
+      } else {
+        final CheckTestHasFailedResultListener listener = new CheckTestHasFailedResultListener(fullMutationMatrix);
 
         final Pitest pit = new Pitest(listener);
 
-        List<TestUnit> list = new ArrayList<TestUnit>();
-        list.add(tu);
-        testUnit = tu;
-
-        if (this.fullMutationMatrix){
-          pit.run(c, list);
-        }else {
+        if (this.fullMutationMatrix) {
+          pit.run(c, tests);
+        } else {
           pit.run(c, createEarlyExitTestGroup(tests));
         }
-
-        if (!listener.getFailingTestsResults().isEmpty()){
-          List<TestResult> testsResults = listener.getFailingTestsResults();
-          for (TestResult testResult : testsResults){
-            Description description = testResult.getDescription();
-            String message = testResult.getFailureMessage();
-            Serializer.serialize(Serializer.EXP, false, message);
-          }
-        }
-
+        return createStatusTestPair(listener);
       }
-
-//      final Pitest pit = new Pitest(listener);
-//
-//      if (this.fullMutationMatrix) {
-//        pit.run(c, tests);
-//      } else {
-//        pit.run(c, createEarlyExitTestGroup(tests));
-//      }
-
-      return createStatusTestPair(listener);
     } catch (final Exception ex) {
       throw translateCheckedException(ex);
     }
-
   }
 
   private MutationStatusTestPair createStatusTestPair(

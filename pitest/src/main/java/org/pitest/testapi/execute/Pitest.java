@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.pitest.rewriter.ClassTransformer;
 import org.pitest.testapi.Configuration;
 import org.pitest.testapi.TestListener;
 import org.pitest.testapi.TestResult;
@@ -53,10 +54,18 @@ public class Pitest {
 
   private void executeTests(final Container container,
       final List<? extends TestUnit> testUnits) {
-    for (final TestUnit unit : testUnits) {
-      synchronized (Pitest.class){
-        final List<TestResult> results = container.execute(unit);
-        processResults(results);
+    boolean isAssertionCache = Boolean.parseBoolean(ClassTransformer.getConfiguration().get("assertionCache"));
+    if (isAssertionCache) {
+      for (final TestUnit unit : testUnits) {
+        synchronized (Pitest.class) {
+          final List<TestResult> results = container.execute(unit);
+          processResults(results);
+        }
+      }
+    }else {
+      for (final TestUnit unit : testUnits) {
+          final List<TestResult> results = container.execute(unit);
+          processResults(results);
       }
     }
   }

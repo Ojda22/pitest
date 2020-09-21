@@ -158,7 +158,9 @@ public class MutationTestMinion {
     // Bwahahahahahahaha
     HotSwapAgent.addTransformer(new BendJavassistToMyWillTransformer(Prelude
         .or(new Glob("javassist/*")), JavassistInputStreamInterceptorAdapater.inputStreamAdapterSupplier(JavassistInterceptor.class)));
-    HotSwapAgent.addTransformer(new ClassTransformer());
+    if(Boolean.parseBoolean(ClassTransformer.getConfiguration().get("assertionCache"))) {
+      HotSwapAgent.addTransformer(new ClassTransformer());
+    }
   }
 
   private static void safelyCloseSocket(final Socket s) {
