@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.pitest.coverage.CoverageReceiver;
 import org.pitest.rewriter.Serializer;
@@ -27,18 +28,20 @@ import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.execute.Container;
 import org.pitest.testapi.execute.Pitest;
 import org.pitest.testapi.execute.containers.UnContainer;
+import org.pitest.util.Log;
 
 public class CoverageWorker {
 
   private final CoveragePipe   pipe;
   private final List<TestUnit> tests;
+  private static final Logger LOG = Log.getLogger();
 
   public CoverageWorker(final CoveragePipe pipe, final List<TestUnit> tests) {
     this.pipe = pipe;
     this.tests = tests;
   }
 
-  public void run() {
+  public void run(boolean isCoverageCache) {
 
     try {
       final List<TestUnit> decoratedTests = decorateForCoverage(this.tests,
@@ -46,24 +49,27 @@ public class CoverageWorker {
 
       Collections.sort(decoratedTests, testComparator());
 
-//      final Container c = new UnContainer();
-//      final Pitest pit = new Pitest(new ErrorListener());
-//      pit.run(c, decoratedTests);
-
-      int i = 0;
-      for (TestUnit tu : decoratedTests) {
-        Serializer.serializeCoverage( tu.getDescription().getQualifiedName());
-        List<TestUnit> l = new ArrayList<TestUnit>();
-        l.add(tu);
+      if (!isCoverageCache) {
+        LOG.info("COVERAGE CACHE IS FALSE: " + isCoverageCache + " : All tests are executed");
         final Container c = new UnContainer();
-        ErrorListener listener=new ErrorListener();
-        final Pitest pit = new Pitest(listener);
+        final Pitest pit = new Pitest(new ErrorListener());
+        pit.run(c, decoratedTests);
+      }else {
+        LOG.info("COVERAGE CACHE IS TRUE: " + isCoverageCache + " : Tests are serialized");
+        int i = 0;
+        for (TestUnit tu : decoratedTests) {
+          Serializer.serializeCoverage(tu.getDescription().getQualifiedName());
+          List<TestUnit> l = new ArrayList<TestUnit>();
+          l.add(tu);
+          final Container c = new UnContainer();
+          ErrorListener listener = new ErrorListener();
+          final Pitest pit = new Pitest(listener);
 
-        pit.run(c, l);
+          pit.run(c, l);
 
-        Serializer.writeCoverageResult(i++, listener.pass, listener.errorMessage);
+          Serializer.writeCoverageResult(i++, listener.pass, listener.errorMessage);
+        }
       }
-
     } catch (final Exception ex) {
       throw translateCheckedException(ex);
     }

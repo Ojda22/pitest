@@ -2,7 +2,13 @@ package org.pitest.rewriter;
 
 import org.pitest.util.Log;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Properties {
 
@@ -16,6 +22,35 @@ public class Properties {
     public static boolean ASSERT_TRANS = getPropertyOrDefault(ASSERT_TRANS_KEY, true);
 
     public static final String REWRITER_CLASS_NAME = "org/pitest/rewriter/Rewriter";
+
+    public static Map<String, String> configuration;
+
+    static {
+        BufferedReader br = null;
+
+        try {
+            List<String> lines;
+            br = new BufferedReader(new FileReader("prefix.conf"));
+            lines = br.lines().collect(Collectors.toList());
+            for (String line : lines) {
+                if (line.contains("=")) {
+                    String key = line.split("=")[0];
+                    String value = line.split("=")[1];
+                    configuration.put(key, value);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
     private static String getProperty(String key){
         String result = null;

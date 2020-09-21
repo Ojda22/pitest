@@ -79,8 +79,15 @@ public class CoverageMinion {
 
       CodeCoverageStore.init(invokeQueue);
 
-      LOG.info("<<<<< ADD ClassTransformer");
-      HotSwapAgent.addTransformer(new ClassTransformer());
+      LOG.info("READ CONFIG: ");
+      ClassTransformer classTransformer = new ClassTransformer();
+      LOG.info("targetProject: " + classTransformer.getConfiguration().get("targetProject"));
+      LOG.info("assertionCache: " + classTransformer.getConfiguration().get("assertionCache"));
+      LOG.info("coverageCache: " + classTransformer.getConfiguration().get("coverageCache"));
+      if (Boolean.parseBoolean(classTransformer.getConfiguration().get("coverageCache"))) {
+        LOG.info("<<<<< ADD ClassTransformer");
+        HotSwapAgent.addTransformer(classTransformer);
+      }
       HotSwapAgent.addTransformer(new CoverageTransformer(
           convertToJVMClassFilter(paramsFromParent.getFilter())));
 
@@ -90,7 +97,7 @@ public class CoverageMinion {
 
       final CoverageWorker worker = new CoverageWorker(invokeQueue, tus);
 
-      worker.run();
+      worker.run(Boolean.parseBoolean(classTransformer.getConfiguration().get("coverageCache")));
 
     } catch (final PitHelpError phe) {
       LOG.log(Level.SEVERE, phe.getMessage());

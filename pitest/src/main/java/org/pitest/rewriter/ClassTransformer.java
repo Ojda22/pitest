@@ -26,6 +26,8 @@ public class ClassTransformer implements ClassFileTransformer {
     //make white list automatic
     private String whiteList = null;
 
+    private Map<String,String> configuration = null;
+
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
@@ -89,6 +91,7 @@ public class ClassTransformer implements ClassFileTransformer {
         LOG.info(readConfig().get("targetProject"));
         LOG.info(readConfig().get("assertionCache"));
         LOG.info(readConfig().get("coverageCache"));
+        configuration = readConfig();
     }
 
     public static Map<String,String> readConfig() {
@@ -118,6 +121,10 @@ public class ClassTransformer implements ClassFileTransformer {
             }
         }
         return confMap;
+    }
+
+    public Map<String, String> getConfiguration() {
+        return configuration;
     }
 
 }
