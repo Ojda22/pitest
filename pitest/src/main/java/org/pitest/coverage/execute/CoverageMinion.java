@@ -79,11 +79,11 @@ public class CoverageMinion {
 
       CodeCoverageStore.init(invokeQueue);
 
-      LOG.info("READ CONFIG: ");
+      LOG.info("Reading Configurations: ");
       ClassTransformer classTransformer = new ClassTransformer();
-      LOG.info("targetProject: " + classTransformer.getConfiguration().get("targetProject"));
-      LOG.info("assertionCache: " + classTransformer.getConfiguration().get("assertionCache"));
-      LOG.info("coverageCache: " + classTransformer.getConfiguration().get("coverageCache"));
+      LOG.info("TargetProject: " + classTransformer.getConfiguration().get("targetProject"));
+      LOG.info("AssertionCache: " + classTransformer.getConfiguration().get("assertionCache"));
+      LOG.info("CoverageCache: " + classTransformer.getConfiguration().get("coverageCache"));
       if (Boolean.parseBoolean(classTransformer.getConfiguration().get("coverageCache"))) {
         LOG.info("<<<<< ADD ClassTransformer");
         HotSwapAgent.addTransformer(classTransformer);

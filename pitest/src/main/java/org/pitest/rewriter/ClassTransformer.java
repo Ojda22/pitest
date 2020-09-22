@@ -91,10 +91,6 @@ public class ClassTransformer implements ClassFileTransformer {
 //            }
 //        }
         this.whiteList = readConfig().get("targetProject");
-        LOG.info("READ CONFIG: ");
-        LOG.info(readConfig().get("targetProject"));
-        LOG.info(readConfig().get("assertionCache"));
-        LOG.info(readConfig().get("coverageCache"));
         configuration = readConfig();
     }
 

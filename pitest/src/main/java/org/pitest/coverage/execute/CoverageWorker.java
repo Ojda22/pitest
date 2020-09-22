@@ -50,12 +50,12 @@ public class CoverageWorker {
       Collections.sort(decoratedTests, testComparator());
 
       if (!isCoverageCache) {
-        LOG.info("COVERAGE CACHE IS FALSE: " + isCoverageCache + " : All tests are executed");
+        LOG.info("Caching coverage: " + isCoverageCache + " : All tests are executed");
         final Container c = new UnContainer();
         final Pitest pit = new Pitest(new ErrorListener());
         pit.run(c, decoratedTests);
       }else {
-        LOG.info("COVERAGE CACHE IS TRUE: " + isCoverageCache + " : Tests are serialized");
+        LOG.info("Caching coverage: " + isCoverageCache + " : Tests are serialized");
         int i = 0;
         for (TestUnit tu : decoratedTests) {
           Serializer.serializeCoverage(tu.getDescription().getQualifiedName());
