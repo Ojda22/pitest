@@ -14,12 +14,16 @@ import static org.pitest.rewriter.Tag.assertion;
 import org.pitest.mutationtest.engine.Location;
 import org.pitest.mutationtest.engine.MethodName;
 import org.pitest.mutationtest.engine.MutationDetails;
+import org.pitest.util.Log;
 import org.pitest.util.StringUtil;
 import org.pitest.util.Unchecked;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 enum Tag {
     mutation, assertions, assertion, sourceFile, mutatedClass, mutatedMethod, methodDescription, lineNumber, mutator, index, killingTest, killingTests, succeedingTests, description, block;
@@ -28,11 +32,13 @@ enum Tag {
 public class ReportWriter {
 
     private final Writer out;
+    private static final Logger LOG = Log.getLogger();
 
-    public ReportWriter(final Writer out, MutationDetails mutationDetails) {
+    public ReportWriter(final Writer out, MutationDetails mutationDetails, List<String> assertions) {
         this.out = out;
         runStart();
-        writeReport(mutationDetails);
+        writeReport(mutationDetails, assertions);
+        runEnd();
     }
 
     private void write(final String value) {
@@ -49,13 +55,7 @@ public class ReportWriter {
     }
 
     public void runEnd() {
-        try {
-            write("</mutations>\n");
-            this.out.close();
-            this.out.flush();
-        } catch (final IOException e) {
-            throw Unchecked.translateCheckedException(e);
-        }
+        write("</mutations>\n");
     }
 
     public void openAssertions(){
@@ -66,11 +66,11 @@ public class ReportWriter {
         write("</assertions>\n");
     }
 
-    private void writeReport(MutationDetails mutationDetails){
-        write(makeNode(makeMutationNode(mutationDetails), mutation) + "\n");
+    private void writeReport(MutationDetails mutationDetails, List<String> assertions){
+        write(makeNode(makeMutationNode(mutationDetails, assertions), mutation) + "\n");
     }
 
-    private String makeMutationNode(final MutationDetails details) {
+    private String makeMutationNode(final MutationDetails details, final List<String> assertions) {
         StringBuilder sb = new StringBuilder();
         sb.append(makeNode(clean(details.getFilename()), sourceFile));
         sb.append(makeNode(clean(details.getClassName().asJavaName()),mutatedClass));
@@ -92,7 +92,53 @@ public class ReportWriter {
         for (Integer b : details.getBlocks()) {
             sb.append(makeNode("" + b, block));
         }
+        // (VERY) Ugly parsing --> Add all in ResultItem Class
+        for (String asserT : assertions){
+            if (asserT.contains(Serializer.EXP) && asserT.contains(Serializer.STRACE)){
+                String [] asserTContext = asserT.split("\\[STACKTRACE\\]");
+                String sTrace = "";
+                if (asserTContext.length > 1) {
+                    sTrace = asserTContext[1].substring(1);
+                }
+                String[] assertIdentification = asserTContext[0].split(" ");
+                if (assertIdentification.length >= 3) {
+                    String exc = assertIdentification[0];
+                    String testName = assertIdentification[1];
+                    String assertValue = assertIdentification[2];
+                    StringBuffer exceptionValue = new StringBuffer();
+                    for (int i = 3; i < assertIdentification.length; i++) {
+                        exceptionValue.append(assertIdentification[i] + " ");
+                    }
+                    String nodeValue = exceptionValue.toString().substring(0, exceptionValue.length() - 1) + Serializer.SEP + Serializer.STRACE + Serializer.SEP + sTrace;
+                    sb.append(makeNode(clean(nodeValue), makeAssertionAttribues(testName, assertValue, exc), assertion));
+                }else{
+                    sb.append(makeNode(clean(Arrays.asList(asserTContext).stream().collect(Collectors.joining(" "))), assertion));
+                }
+            }else{
+                String[] asserTContext = asserT.split(Serializer.SEP);
+                if (asserTContext.length == 4){
+                    String assertId = asserTContext[0];
+                    String testName = asserTContext[1];
+                    String value = asserTContext[2];
+                    String content = asserTContext[3];
+                    sb.append(makeNode(content, makeAssertionAttribues(value, testName, assertId), assertion));
+                }else {
+                    String assertId = asserTContext[0];
+                    String value = asserTContext[1];
+                    String content = asserTContext[2];
+                    sb.append(makeNode(content, makeAssertionAttribues(value, assertId), assertion));
+                }
+            }
+        }
         return sb.toString();
+    }
+
+    private String makeAssertionAttribues(String value, String testName, String assertID){
+        return "testName='" + testName + "' assertValue='" + value + "' assertID='" + assertID + "'";
+    }
+
+    private String makeAssertionAttribues(String value, String assertID){
+        return "assertValue='" + value + "' assertID=" + assertID + "'";
     }
 
     public void writeAssertion(ResultItem resultItem){
@@ -100,8 +146,8 @@ public class ReportWriter {
     }
 
     private String makeAssertAttributes(ResultItem resultItem){
-        return "testQualifiedName='" + resultItem.getMethodUnitQualifiedName() + "' testCaseName='" + resultItem.getTestCaseName() + "' testCaseDescription='"
-                + resultItem.getTestDescription() + "' assertionResult=" + resultItem.getAssertion() + "assertMethod='" + resultItem.getAssertMethod() + "' lineNumber=" + resultItem.getLineNumber();
+        return "testQualifiedName=" + resultItem.getMethodUnitQualifiedName() + " testCaseName=" + resultItem.getTestCaseName() + " testCaseDescription="
+                + resultItem.getTestDescription() + " assertionResult=" + resultItem.getAssertion() + "assertMethod=" + resultItem.getAssertMethod() + " lineNumber=" + resultItem.getLineNumber();
     }
 
     private String makeNode(final String value, final Tag tag) {
