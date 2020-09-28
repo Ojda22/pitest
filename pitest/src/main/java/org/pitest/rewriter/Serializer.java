@@ -12,10 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
+import org.pitest.util.Log;
 
 public class Serializer {
 
@@ -23,11 +26,12 @@ public class Serializer {
     private static final String COV_DIRECTORY = "coverage-assertion";
     public static final String splitter = ",";
     private static List<String> list = new ArrayList<String>();
+    private static List<ResultItem> resultItemsList = new ArrayList<ResultItem>();
     private static Set<String> tracedAsserts = new HashSet<String>();
     public static final String SEP = " ";
     public static final String EXP = "[EXCEPTION]";
     public static final String STRACE = "[STACKTRACE]";
-
+    public static final Logger LOG = Log.getLogger();
 
     public static void serializeCoverage(String desc) {
         try {
@@ -40,8 +44,10 @@ public class Serializer {
     public static void serialize(String desc, boolean value, Object expecteds, Object actuals) {
         try {
             String assertId = desc.trim();
+            ResultItem resultItem = new ResultItem();
             if (MutationTestWorker.testUnit != null) {
                 assertId = desc.trim() + SEP + MutationTestWorker.testUnit.getDescription().getQualifiedName();
+                resultItem.setTestUnitQualifiedName(MutationTestWorker.testUnit.getDescription().getQualifiedName());
             }
             String key;
 
@@ -50,9 +56,28 @@ public class Serializer {
                 // keep complete exception info
                 if (desc.equals(EXP)) {
                     key = assertId + SEP + value + SEP + content;
+                    resultItem.setAssertionDescription(desc);
+                    resultItem.setAssertionContent(content);
+                    String[] traceElements = content.split("\\[STACKTRACE\\]");
+                    resultItem.setExceptionName(traceElements[0]);
+                    resultItem.setStackTrace(traceElements[1]);
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
+                    resultItem.setAssertionContent(DigestUtils.md5Hex(content));
+                    resultItem.setAssertionDescription(desc);
+                    String[] descriptionElements = desc.split(":");
+                    if (descriptionElements.length == 5) {
+                        resultItem.setClassName(descriptionElements[0]);
+                        resultItem.setTestCaseName(descriptionElements[1]);
+                        resultItem.setTestCaseMethodDescription(descriptionElements[2]);
+                        resultItem.setAssertionLineNumber(descriptionElements[3]);
+                        resultItem.setAssertionMethod(descriptionElements[4]);
+                    }else {
+                        LOG.log(Level.SEVERE, "SHOULD NOT HAPPEN!!!");
+                    }
                 }
+                resultItem.setAssertionValue(new Boolean(value));
+                resultItemsList.add(resultItem);
                 list.add(key);
                 tracedAsserts.add(assertId);
             }
@@ -63,8 +88,10 @@ public class Serializer {
     public static void serialize(String desc, boolean value, Object o) {
         try {
             String assertId = desc.trim();
+            ResultItem resultItem = new ResultItem();
             if (MutationTestWorker.testUnit != null) {
                 assertId = desc.trim() + SEP + MutationTestWorker.testUnit.getDescription().getQualifiedName();
+                resultItem.setTestUnitQualifiedName(MutationTestWorker.testUnit.getDescription().getQualifiedName());
             }
 
             if (!tracedAsserts.contains(assertId)) {
@@ -73,9 +100,28 @@ public class Serializer {
                 // keep complete exception info
                 if (desc.equals(EXP)) {
                     key = assertId + SEP + value + SEP + content;
+                    resultItem.setAssertionDescription(desc);
+                    resultItem.setAssertionContent(content);
+                    String[] traceElements = content.split("\\[STACKTRACE\\]");
+                    resultItem.setExceptionName(traceElements[0]);
+                    resultItem.setStackTrace(traceElements[1]);
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
+                    resultItem.setAssertionContent(DigestUtils.md5Hex(content));
+                    resultItem.setAssertionDescription(desc);
+                    String[] descriptionElements = desc.split(":");
+                    if (descriptionElements.length == 5) {
+                        resultItem.setClassName(descriptionElements[0]);
+                        resultItem.setTestCaseName(descriptionElements[1]);
+                        resultItem.setTestCaseMethodDescription(descriptionElements[2]);
+                        resultItem.setAssertionLineNumber(descriptionElements[3]);
+                        resultItem.setAssertionMethod(descriptionElements[4]);
+                    }else {
+                        LOG.log(Level.SEVERE, "SHOULD NOT HAPPEN!!!");
+                    }
                 }
+                resultItem.setAssertionValue(new Boolean(value));
+                resultItemsList.add(resultItem);
                 list.add(key);
                 tracedAsserts.add(assertId);
             }
@@ -86,8 +132,10 @@ public class Serializer {
     public static void serialize(String desc, boolean value, Object[] expecteds, Object[] actuals) {
         try {
             String assertId = desc.trim();
+            ResultItem resultItem = new ResultItem();
             if (MutationTestWorker.testUnit != null) {
                 assertId = desc.trim() + SEP + MutationTestWorker.testUnit.getDescription().getQualifiedName();
+                resultItem.setTestUnitQualifiedName(MutationTestWorker.testUnit.getDescription().getQualifiedName());
             }
             String key;
 
@@ -96,9 +144,28 @@ public class Serializer {
                 // keep complete exception info
                 if (desc.equals(EXP)) {
                     key = assertId + SEP + value + SEP + content;
+                    resultItem.setAssertionDescription(desc);
+                    resultItem.setAssertionContent(content);
+                    String[] traceElements = content.split("\\[STACKTRACE\\]");
+                    resultItem.setExceptionName(traceElements[0]);
+                    resultItem.setStackTrace(traceElements[1]);
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
+                    resultItem.setAssertionContent(DigestUtils.md5Hex(content));
+                    resultItem.setAssertionDescription(desc);
+                    String[] descriptionElements = desc.split(":");
+                    if (descriptionElements.length == 5) {
+                        resultItem.setClassName(descriptionElements[0]);
+                        resultItem.setTestCaseName(descriptionElements[1]);
+                        resultItem.setTestCaseMethodDescription(descriptionElements[2]);
+                        resultItem.setAssertionLineNumber(descriptionElements[3]);
+                        resultItem.setAssertionMethod(descriptionElements[4]);
+                    }else {
+                        LOG.log(Level.SEVERE, "SHOULD NOT HAPPEN!!!");
+                    }
                 }
+                resultItem.setAssertionValue(new Boolean(value));
+                resultItemsList.add(resultItem);
                 list.add(key);
                 tracedAsserts.add(assertId);
             }
@@ -110,17 +177,38 @@ public class Serializer {
     public static void serialize(String desc, boolean value, String content) {
         try {
             String assertId = desc.trim();
+            ResultItem resultItem = new ResultItem();
             if (MutationTestWorker.testUnit != null) {
                 assertId = desc.trim() + SEP + MutationTestWorker.testUnit.getDescription().getQualifiedName();
+                resultItem.setTestUnitQualifiedName(MutationTestWorker.testUnit.getDescription().getQualifiedName());
             }
             if (!tracedAsserts.contains(assertId)) {
                 String key;
                 // keep complete exception info
                 if (desc.equals(EXP)) {
                     key = assertId + SEP + value + SEP + content;
+                    resultItem.setAssertionDescription(desc);
+                    resultItem.setAssertionContent(content);
+                    String[] traceElements = content.split("\\[STACKTRACE\\]");
+                    resultItem.setExceptionName(traceElements[0]);
+                    resultItem.setStackTrace(traceElements[1]);
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
+                    resultItem.setAssertionContent(DigestUtils.md5Hex(content));
+                    resultItem.setAssertionDescription(desc);
+                    String[] descriptionElements = desc.split(":");
+                    if (descriptionElements.length == 5) {
+                        resultItem.setClassName(descriptionElements[0]);
+                        resultItem.setTestCaseName(descriptionElements[1]);
+                        resultItem.setTestCaseMethodDescription(descriptionElements[2]);
+                        resultItem.setAssertionLineNumber(descriptionElements[3]);
+                        resultItem.setAssertionMethod(descriptionElements[4]);
+                    }else {
+                        LOG.log(Level.SEVERE, "SHOULD NOT HAPPEN!!!");
+                    }
                 }
+                resultItem.setAssertionValue(new Boolean(value));
+                resultItemsList.add(resultItem);
                 list.add(key);
                 tracedAsserts.add(assertId);
             }
@@ -177,7 +265,7 @@ public class Serializer {
 
             serializer = new BufferedWriter(new FileWriter(fileName + ".cover", true));
 
-            ReportWriter reportWriter = new ReportWriter(serializer, MutationTestWorker.mutationDetails, list);
+            ReportWriter reportWriter = new ReportWriter(serializer, MutationTestWorker.mutationDetails, resultItemsList);
 
 //            serializer.write(MutationTestWorker.mutationDetails.toString() + "\n");
 //
@@ -187,6 +275,7 @@ public class Serializer {
 //            serializer.write(result);
             serializer.flush();
 
+            resultItemsList.clear();
             list.clear();
             tracedAsserts.clear();
         } catch (IOException e) {

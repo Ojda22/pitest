@@ -2,53 +2,68 @@ package org.pitest.rewriter;
 
 public class ResultItem {
 
-    private Boolean assertion;
+    private Boolean assertionValue;
     private String assertionContent;
+    private String assertionDescription;
+    private String testUnitQualifiedName;
 
+    // assertionDescription consists of those fields, seperated by ":"
     private String className;
     private String testCaseName;
-    private String testDescription;
-    private String lineNumber;
-    private String assertMethod;
-    private String methodUnitQualifiedName;
+    private String testCaseMethodDescription;
+    private String assertionLineNumber;
+    private String assertionMethod;
 
-    public ResultItem(Boolean assertion, String assertionContent, String className, String testCaseName, String testDescription, String lineNumber, String assertMethod, String methodUnitQualifiedName) {
-        this.assertion = assertion;
-        this.assertionContent = assertionContent;
-        this.className = className;
-        this.testCaseName = testCaseName;
-        this.testDescription = testDescription;
-        this.lineNumber = lineNumber;
-        this.assertMethod = assertMethod;
-        this.methodUnitQualifiedName = methodUnitQualifiedName;
-    }
+    // in case if assertionDescription is exception
+    private String exceptionName;
+    private String stackTrace;
 
     public ResultItem(){
     }
 
     @Override
     public int hashCode () {
-        return assertionContent.hashCode() + 31*(assertion ? 1 : 0) + className.hashCode() + testCaseName.hashCode() + testDescription.hashCode()
-                + lineNumber.hashCode() + assertMethod.hashCode() + methodUnitQualifiedName.hashCode();
+        return assertionContent.hashCode() + 31*(assertionValue ? 1 : 0) + className.hashCode() + testCaseName.hashCode() + testCaseMethodDescription.hashCode()
+                + assertionLineNumber.hashCode() + assertionMethod.hashCode() + testUnitQualifiedName.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
         ResultItem item = (ResultItem) obj;
-        if ((this == item) || (this.assertion == item.assertion && this.assertionContent.equals(item.assertionContent)
-        && this.className.equals(item.className) && this.testCaseName.equals(item.testCaseName) && this.testDescription.equals(item.testDescription)
-        && this.lineNumber.equals(item.lineNumber) && this.assertMethod.equals(item.assertMethod) && this.methodUnitQualifiedName.equals(item.methodUnitQualifiedName))) {
+        if ((this == item) || (this.assertionValue == item.assertionValue && this.assertionContent.equals(item.assertionContent)
+        && this.testUnitQualifiedName.equals(item.testUnitQualifiedName) && this.className.equals(item.className) && this.testCaseName.equals(item.testCaseName)
+        && this.testCaseMethodDescription.equals(item.testCaseMethodDescription) && this.assertionLineNumber.equals(item.assertionLineNumber) && this.assertionMethod.equals(item.assertionMethod))) {
             return true;
         }
         return false;
     }
 
-    public Boolean getAssertion() {
-        return assertion;
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (assertionDescription.contains(Serializer.EXP)){
+            stringBuilder.append("AssertionDescription: " + assertionDescription + "\n");
+            stringBuilder.append("AssertionValue: " + assertionValue + "\n");
+            stringBuilder.append("ExceptionName: " + exceptionName + "\n");
+            stringBuilder.append("StackTrace: " + stackTrace + "\n");
+            stringBuilder.append("AssertionContent: " + assertionContent + "\n");
+            stringBuilder.append("TestCaseName: " + testUnitQualifiedName + "\n");
+        }else {
+            stringBuilder.append("AssertionDescription: " + assertionDescription + " (ClassName: " + className + ", TestClassName:" + testCaseName + ", TestCaseMethodDescription: " + testCaseMethodDescription
+                    + ", AssertionLineNumber: " + assertionLineNumber + ", AssertionMethod: " + assertionMethod + ") \n");
+            stringBuilder.append("AssertionContent: " + assertionContent + "\n");
+            stringBuilder.append("TestUnifiedName: " + testUnitQualifiedName + "\n");
+            stringBuilder.append("AssertionValue: " + assertionValue.booleanValue());
+        }
+        return stringBuilder.toString();
     }
 
-    public void setAssertion(Boolean assertion) {
-        this.assertion = assertion;
+    public String getTestUnitQualifiedName() {
+        return testUnitQualifiedName;
+    }
+
+    public void setTestUnitQualifiedName(String testUnitQualifiedName) {
+        this.testUnitQualifiedName = testUnitQualifiedName;
     }
 
     public String getAssertionContent() {
@@ -57,6 +72,22 @@ public class ResultItem {
 
     public void setAssertionContent(String assertionContent) {
         this.assertionContent = assertionContent;
+    }
+
+    public Boolean getAssertionValue() {
+        return assertionValue;
+    }
+
+    public void setAssertionValue(Boolean assertionValue) {
+        this.assertionValue = assertionValue;
+    }
+
+    public String getAssertionDescription() {
+        return assertionDescription;
+    }
+
+    public void setAssertionDescription(String assertionDescription) {
+        this.assertionDescription = assertionDescription;
     }
 
     public String getClassName() {
@@ -75,35 +106,44 @@ public class ResultItem {
         this.testCaseName = testCaseName;
     }
 
-    public String getTestDescription() {
-        return testDescription;
+    public String getTestCaseMethodDescription() {
+        return testCaseMethodDescription;
     }
 
-    public void setTestDescription(String testDescription) {
-        this.testDescription = testDescription;
+    public void setTestCaseMethodDescription(String testCaseMethodDescription) {
+        this.testCaseMethodDescription = testCaseMethodDescription;
     }
 
-    public String getLineNumber() {
-        return lineNumber;
+    public String getAssertionLineNumber() {
+        return assertionLineNumber;
     }
 
-    public void setLineNumber(String lineNumber) {
-        this.lineNumber = lineNumber;
+    public void setAssertionLineNumber(String assertionLineNumber) {
+        this.assertionLineNumber = assertionLineNumber;
     }
 
-    public String getAssertMethod() {
-        return assertMethod;
+    public String getAssertionMethod() {
+        return assertionMethod;
     }
 
-    public void setAssertMethod(String assertMethod) {
-        this.assertMethod = assertMethod;
+    public void setAssertionMethod(String assertionMethod) {
+        this.assertionMethod = assertionMethod;
     }
 
-    public String getMethodUnitQualifiedName() {
-        return methodUnitQualifiedName;
+    public String getExceptionName() {
+        return exceptionName;
     }
 
-    public void setMethodUnitQualifiedName(String methodUnitQualifiedName) {
-        this.methodUnitQualifiedName = methodUnitQualifiedName;
+    public void setExceptionName(String exceptionName) {
+        this.exceptionName = exceptionName;
     }
+
+    public String getStackTrace() {
+        return stackTrace;
+    }
+
+    public void setStackTrace(String stackTrace) {
+        this.stackTrace = stackTrace;
+    }
+
 }
