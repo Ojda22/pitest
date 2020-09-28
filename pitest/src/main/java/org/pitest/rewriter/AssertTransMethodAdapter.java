@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 public class AssertTransMethodAdapter extends MethodVisitor {
@@ -28,6 +27,7 @@ public class AssertTransMethodAdapter extends MethodVisitor {
 
     public static final String columnSeperator = "\t";
     public static Map<String, Set<String>> assertionDictionary = new HashMap<String, Set<String>>();
+    public static Map<String, Set<String>> assertionJunit5Dictionary = new HashMap<String, Set<String>>();
 
     public static Set<Integer> returns = new HashSet<Integer>();
 
@@ -58,7 +58,7 @@ public class AssertTransMethodAdapter extends MethodVisitor {
                 , "(Ljava/lang/String;Ljava/lang/String;)V", "(Ljava/lang/String;DDD)V",
                 "(DDD)V", "(Ljava/lang/String;FFF)V", "(FFF)V", "(Ljava/lang/String;JJ)V", "(JJ)V","(Ljava/lang/String;ZZ)V"
                 , "(ZZ)V", "(Ljava/lang/String;BB)V", "(BB)V", "(Ljava/lang/String;CC)V", "(CC)V", "((Ljava/lang/String;SS)V"
-                ,"(SS)V", "(Ljava/lang/String;II)V", "(II)V");
+                ,"(SS)V", "(Ljava/lang/String;II)V", "(II)V", "(Ljava/lang/String;DD)V");
 
         assertionDictionary.put("assertEquals", new HashSet<String>(descriptionSet));
         descriptionSet.clear();
@@ -104,11 +104,17 @@ public class AssertTransMethodAdapter extends MethodVisitor {
         assertionDictionary.put("assertThat", new HashSet<String>(descriptionSet));
         descriptionSet.clear();
 
-        LOG.info("<<<<< Assertion dictonary contains:");
-        for(Entry<String, Set<String>> entrySet : assertionDictionary.entrySet()){
-            LOG.info("<<<< " + entrySet.getKey());
-            LOG.info("<<<<<<<< Contains descriptions: " + entrySet.getValue().size());
-        }
+        Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/String;JJ)V"
+                , "(Ljava/lang/String;FFF)V", "(Ljava/lang/String;DDD)V", "(Ljava/lang/Object;Ljava/lang/Object;)V", "(JJ)V"
+                , "(FFF)V", "(DDD)V");
+        assertionDictionary.put("assertNotEquals", new HashSet<String>(descriptionSet));
+        descriptionSet.clear();
+
+//        LOG.info("<<<<< Assertion dictonary contains:");
+//        for(Entry<String, Set<String>> entrySet : assertionDictionary.entrySet()){
+//            LOG.info("<<<< " + entrySet.getKey());
+//            LOG.info("<<<<<<<< Contains descriptions: " + entrySet.getValue().size());
+//        }
 
     }
 
