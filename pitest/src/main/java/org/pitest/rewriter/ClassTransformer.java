@@ -40,12 +40,28 @@ public class ClassTransformer implements ClassFileTransformer {
             if (className == null){
                 return classfileBuffer;
             }
-            if (loader != ClassLoader.getSystemClassLoader()){
+
+            if (className.contains("ESTest")) {
+                LOG.info("EVOSUITE CLASS CLASSLOADER IS DIFFERENT: " + loader);
+                LOG.info("EVOSUITE CLASS CLASSLOADER IS DIFFERENT: " + ClassLoader.getSystemClassLoader());
+                LOG.info("EVOSUITE CLASS CLASSLOADER IS THE SAME");
+            }
+
+            if (loader != ClassLoader.getSystemClassLoader() && !className.contains("ESTest")) {
                 return classfileBuffer;
             }
 
             if (this.whiteList == null || !className.startsWith(this.whiteList)){
-             return classfileBuffer;
+                if (className.contains("ESTest")){
+                    LOG.info("EVOSUITE CLASS DOES NOT START WITH WHITELIST PREFIX");
+                    LOG.info(className);
+                    LOG.info(this.whiteList);
+                }
+                return classfileBuffer;
+            }
+
+            if (className.contains("ESTest")){
+                LOG.info("EVOSUITE CLASS PASSING WHITE LIST CHECK");
             }
 
             byte[] result = classfileBuffer;

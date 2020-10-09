@@ -25,7 +25,9 @@ public class NegatorClassAdapter extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
         MethodVisitor mv = cv.visitMethod(access, name, descriptor, signature, exceptions);
-
+        if (this.name.contains("ESTest")){
+            LOG.info("###### ESTest CLASS: " + this.name + ":" + name + ":" + descriptor);
+        }
         mv = new AssertTransMethodAdapter(mv, access, this.name + ":" + name + ":" + descriptor);
 
         return mv;

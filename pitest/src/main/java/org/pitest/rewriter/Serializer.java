@@ -59,8 +59,12 @@ public class Serializer {
                     resultItem.setAssertionDescription(desc);
                     resultItem.setAssertionContent(content);
                     String[] traceElements = content.split("\\[STACKTRACE\\]");
-                    resultItem.setExceptionName(traceElements[0]);
-                    resultItem.setStackTrace(traceElements[1]);
+                    if (traceElements.length == 2) {
+                        resultItem.setExceptionName(traceElements[0]);
+                        resultItem.setStackTrace(traceElements[1]);
+                    }else {
+                        resultItem.setExceptionName(traceElements[0]);
+                    }
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
                     resultItem.setAssertionContent(DigestUtils.md5Hex(content));
@@ -103,8 +107,12 @@ public class Serializer {
                     resultItem.setAssertionDescription(desc);
                     resultItem.setAssertionContent(content);
                     String[] traceElements = content.split("\\[STACKTRACE\\]");
-                    resultItem.setExceptionName(traceElements[0]);
-                    resultItem.setStackTrace(traceElements[1]);
+                    if (traceElements.length == 2) {
+                        resultItem.setExceptionName(traceElements[0]);
+                        resultItem.setStackTrace(traceElements[1]);
+                    }else {
+                        resultItem.setExceptionName(traceElements[0]);
+                    }
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
                     resultItem.setAssertionContent(DigestUtils.md5Hex(content));
@@ -147,8 +155,12 @@ public class Serializer {
                     resultItem.setAssertionDescription(desc);
                     resultItem.setAssertionContent(content);
                     String[] traceElements = content.split("\\[STACKTRACE\\]");
-                    resultItem.setExceptionName(traceElements[0]);
-                    resultItem.setStackTrace(traceElements[1]);
+                    if (traceElements.length == 2) {
+                        resultItem.setExceptionName(traceElements[0]);
+                        resultItem.setStackTrace(traceElements[1]);
+                    }else {
+                        resultItem.setExceptionName(traceElements[0]);
+                    }
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
                     resultItem.setAssertionContent(DigestUtils.md5Hex(content));
@@ -190,8 +202,12 @@ public class Serializer {
                     resultItem.setAssertionDescription(desc);
                     resultItem.setAssertionContent(content);
                     String[] traceElements = content.split("\\[STACKTRACE\\]");
-                    resultItem.setExceptionName(traceElements[0]);
-                    resultItem.setStackTrace(traceElements[1]);
+                    if (traceElements.length == 2) {
+                        resultItem.setExceptionName(traceElements[0]);
+                        resultItem.setStackTrace(traceElements[1]);
+                    }else {
+                        resultItem.setExceptionName(traceElements[0]);
+                    }
                 }else {
                     key = assertId + SEP + value + SEP + DigestUtils.md5Hex(content);
                     resultItem.setAssertionContent(DigestUtils.md5Hex(content));

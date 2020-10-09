@@ -140,6 +140,10 @@ public class AssertTransMethodAdapter extends MethodVisitor {
     @Override
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String descriptor, boolean isInterface) {
         if (shouldTransform(owner, descriptor, name, opcode)){
+            if (this.classname.contains("ESTest")){
+                LOG.info("###### It should be transformed ");
+                LOG.info(this.classname.replace("/",".") + ":" + curLine + ":" + name + "\n");
+            }
             mv.visitLdcInsn(this.classname.replace("/",".") + ":" + curLine + ":" + name + "\n");
 //            LOG.info("<<<<< Transforming assertID:" + this.classname.replace("/",".") + ":" + curLine + ":" + name + "\n");
             mv.visitMethodInsn(opcode, Properties.REWRITER_CLASS_NAME, name, getNewDesc(descriptor), isInterface);
@@ -153,14 +157,29 @@ public class AssertTransMethodAdapter extends MethodVisitor {
     }
 
     public boolean shouldTransform(String owner, String description, String methodName, int opcode){
+        if (this.classname.contains("ESTest")){
+            LOG.info("######Should transform: " + owner + ":" + description + ":" + methodName);
+        }
         if (assertionDictionary.containsKey(methodName)){
+            if (this.classname.contains("ESTest")){
+                LOG.info("###### Method contained into dictionary: " + methodName);
+            }
             // junit/framework/Assert is depricated but however, it will not hurt if we consider it
             // org.junit.jupiter.api.Assertions is for junit5, method descriptions need to be added
             if ("org/junit/Assert".equals(owner) || ("junit/framework/Assert".equals(owner)) || opcode == Opcodes.INVOKESTATIC) {
+                if (this.classname.contains("ESTest")){
+                    LOG.info("###### Owner is okay: " + owner);
+                }
                 if (assertionDictionary.get(methodName).contains(description)) {
+                    if (this.classname.contains("ESTest")){
+                        LOG.info("###### Description of a method is ok: " + description);
+                    }
                     return true;
                 }
                 if ("assertThat".equals(methodName)) {
+                    if (this.classname.contains("ESTest")){
+                        LOG.info("###### assertThat is ok: " + methodName);
+                    }
                     return true;
                 }
             }
