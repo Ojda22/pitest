@@ -169,9 +169,9 @@ public class ReportWriter {
             LOG.info("Assertion: " + resultItem);
             if (resultItem.getAssertionDescription().equals(Serializer.EXP)){
                 String nodeValue = resultItem.getExceptionName() + Serializer.SEP + Serializer.STRACE + Serializer.SEP + resultItem.getStackTrace();
-                sb.append(makeNode(clean(nodeValue), makeAssertionAttribues(resultItem.getTestUnitQualifiedName(), resultItem.getAssertionValue().toString(), resultItem.getAssertionDescription()), assertion));
+                sb.append(makeNode(clean(nodeValue), makeAssertionAttribues(resultItem.getAssertionValue().toString(), resultItem.getTestUnitQualifiedName(), resultItem.getAssertionDescription()), assertion));
             }else{
-                sb.append(makeNode(resultItem.getAssertionContent(), makeAssertionAttribues(resultItem.getTestUnitQualifiedName(), resultItem.getAssertionValue().toString(), resultItem.getAssertionDescription()), assertion));
+                sb.append(makeNode(resultItem.getAssertionContent(), makeAssertionAttribues(resultItem.getAssertionValue().toString(),resultItem.getTestUnitQualifiedName(), resultItem.getAssertionDescription()), assertion));
                 }
             }
         return sb.toString();
