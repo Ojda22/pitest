@@ -11,6 +11,7 @@ import static org.pitest.rewriter.Tag.index;
 import static org.pitest.rewriter.Tag.block;
 import static org.pitest.rewriter.Tag.assertion;
 
+import org.pitest.mutationtest.MutationStatusTestPair;
 import org.pitest.mutationtest.engine.Location;
 import org.pitest.mutationtest.engine.MethodName;
 import org.pitest.mutationtest.engine.MutationDetails;
@@ -39,10 +40,10 @@ public class ReportWriter {
 //        runEnd();
 //    }
 
-    public ReportWriter(final Writer out, MutationDetails mutationDetails, List<ResultItem> assertions) {
+    public ReportWriter(final Writer out, MutationDetails mutationDetails, List<ResultItem> assertions, MutationStatusTestPair mutationStatusTestPair) {
         this.out = out;
         runStart();
-        writeReport(mutationDetails, assertions);
+        writeReport(mutationDetails, assertions, mutationStatusTestPair);
         runEnd();
     }
 
@@ -75,8 +76,8 @@ public class ReportWriter {
 //        write(makeNode(makeMutationNode(mutationDetails, assertions), mutation) + "\n");
 //    }
 
-    private void writeReport(MutationDetails mutationDetails, List<ResultItem> assertions){
-        write(makeNode(makeMutationNode(mutationDetails, assertions), mutation) + "\n");
+    private void writeReport(MutationDetails mutationDetails, List<ResultItem> assertions, MutationStatusTestPair mutationStatusTestPair){
+        write(makeNode(makeMutationNode(mutationDetails, assertions), makeStatusAttribute(mutationStatusTestPair.getStatus().name()), mutation) + "\n");
     }
 
 //    private String makeMutationNode(final MutationDetails details, final List<String> assertions) {
@@ -179,6 +180,10 @@ public class ReportWriter {
 
     private String makeAssertionAttribues(String value, String testName, String assertID){
         return "testName='" + testName + "' assertValue='" + value + "' assertID='" + assertID + "'";
+    }
+
+    private String makeStatusAttribute(String value){
+        return "status='" + value + "'";
     }
 
     private String makeAssertionAttribues(String value, String assertID){

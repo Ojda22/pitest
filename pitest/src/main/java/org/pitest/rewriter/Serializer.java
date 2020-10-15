@@ -1,6 +1,7 @@
 package org.pitest.rewriter;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.pitest.mutationtest.MutationStatusTestPair;
 import org.pitest.mutationtest.execute.MutationTestWorker;
 
 import java.io.BufferedWriter;
@@ -261,7 +262,7 @@ public class Serializer {
         }
     }
 
-    public static void writeResult(String result, int instanceCount) {
+    public static void writeResult(String result, int instanceCount, MutationStatusTestPair mutationStatusTestPair) {
         BufferedWriter serializer = null;
         try {
             String fileName = MUT_DIRECTORY + File.separator
@@ -281,7 +282,7 @@ public class Serializer {
 
             serializer = new BufferedWriter(new FileWriter(fileName + ".cover", true));
 
-            ReportWriter reportWriter = new ReportWriter(serializer, MutationTestWorker.mutationDetails, resultItemsList);
+            ReportWriter reportWriter = new ReportWriter(serializer, MutationTestWorker.mutationDetails, resultItemsList, mutationStatusTestPair);
 
 //            serializer.write(MutationTestWorker.mutationDetails.toString() + "\n");
 //
