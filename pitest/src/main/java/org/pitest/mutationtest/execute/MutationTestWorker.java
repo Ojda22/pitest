@@ -140,7 +140,7 @@ public class MutationTestWorker {
     }
     LOG.info("Mutation " + mutationId + " **detected = " + mutationDetected);
     if (isAssertionCache) {
-      Serializer.writeResult("", MutationTestWorker.instanceCount++, mutationDetected);
+      Serializer.writeResult("", MutationTestWorker.instanceCount++);
     }
   }
 

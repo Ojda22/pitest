@@ -1,14 +1,13 @@
 package org.pitest.rewriter;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.pitest.mutationtest.MutationStatusTestPair;
 import org.pitest.mutationtest.execute.MutationTestWorker;
 
 import java.io.BufferedWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
 import java.io.FileWriter;
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -262,7 +261,7 @@ public class Serializer {
         }
     }
 
-    public static void writeResult(String result, int instanceCount, MutationStatusTestPair mutationStatusTestPair) {
+    public static void writeResult(String result, int instanceCount) {
         BufferedWriter serializer = null;
         try {
             String fileName = MUT_DIRECTORY + File.separator
@@ -270,19 +269,18 @@ public class Serializer {
                     + "-" + MutationTestWorker.mutationDetails.getLineNumbers().stream().map(i -> i+"").collect(Collectors.joining(","))
                     + "-" + MutationTestWorker.mutationDetails.getBlocks().stream().map(i -> i+"").collect(Collectors.joining(","))
                     + "-" + MutationTestWorker.mutationDetails.getId().getIndexesList().stream().map(l -> l.get(0)+"").collect(Collectors.joining(","))
-                    + "-" + MutationTestWorker.mutationDetails.getId().getMutators().stream().collect(Collectors.joining(","))
-                    + "-" + instanceCount;
+                    + "-" + MutationTestWorker.mutationDetails.getId().getMutators().stream().collect(Collectors.joining(","));
             File outputDir = new File(MUT_DIRECTORY);
             if (!outputDir.exists()) {
                 outputDir.mkdir();
             }
 
-//            GZIPOutputStream zip = new GZIPOutputStream(
-//                    new FileOutputStream(new File(fileName + ".cover.gz")));
+//            GZIPOutputStream zip = new GZIPOutputStream(new FileOutputStream(new File(fileName + ".cover.gz")));
 
             serializer = new BufferedWriter(new FileWriter(fileName + ".cover", true));
+//            serializer = new BufferedWriter(new OutputStreamWriter(zip, "UTF-8"));
 
-            ReportWriter reportWriter = new ReportWriter(serializer, MutationTestWorker.mutationDetails, resultItemsList, mutationStatusTestPair);
+            ReportWriter reportWriter = new ReportWriter(serializer, MutationTestWorker.mutationDetails, resultItemsList);
 
 //            serializer.write(MutationTestWorker.mutationDetails.toString() + "\n");
 //
