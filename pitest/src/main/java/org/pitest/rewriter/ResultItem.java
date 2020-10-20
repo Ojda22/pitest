@@ -18,29 +18,59 @@ public class ResultItem {
     private String exceptionName;
     private String stackTrace;
 
-    public ResultItem(){
-    }
-
     @Override
     public int hashCode () {
-        return assertionContent.hashCode() + 31*(assertionValue ? 1 : 0) + className.hashCode() + testCaseName.hashCode() + testCaseMethodDescription.hashCode()
-                + assertionLineNumber.hashCode() + assertionMethod.hashCode() + testUnitQualifiedName.hashCode();
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result)
+                + ((this.assertionDescription == null) ? 0 : this.assertionDescription.hashCode());
+        result = (prime * result)
+                + ((this.testUnitQualifiedName == null) ? 0 : this.testUnitQualifiedName.hashCode());
+        result = (prime * result)
+                + ((this.className == null) ? 0 : this.className.hashCode());
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        ResultItem item = (ResultItem) obj;
-        if ((this == item) || (this.assertionValue == item.assertionValue && this.assertionContent.equals(item.assertionContent)
-        && this.testUnitQualifiedName.equals(item.testUnitQualifiedName) && this.className.equals(item.className) && this.testCaseName.equals(item.testCaseName)
-        && this.testCaseMethodDescription.equals(item.testCaseMethodDescription) && this.assertionLineNumber.equals(item.assertionLineNumber) && this.assertionMethod.equals(item.assertionMethod))) {
+        if (this == obj) {
             return true;
         }
-        return false;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ResultItem other = (ResultItem) obj;
+        if (this.assertionDescription == null) {
+            if (other.assertionDescription != null) {
+                return false;
+            }
+        } else if (!this.assertionDescription.equalsIgnoreCase(other.assertionDescription)) {
+            return false;
+        }
+        if (this.testUnitQualifiedName == null) {
+            if (other.testUnitQualifiedName != null) {
+                return false;
+            }
+        } else if (!this.testUnitQualifiedName.equalsIgnoreCase(other.testUnitQualifiedName)) {
+            return false;
+        }
+        if (this.className == null) {
+            if (other.className != null) {
+                return false;
+            }
+        } else if (!this.className.equalsIgnoreCase(other.className)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("ResultItem:\n");
         if (assertionDescription.contains(Serializer.EXP)){
             stringBuilder.append("AssertionDescription: " + assertionDescription + "\n");
             stringBuilder.append("AssertionValue: " + assertionValue + "\n");

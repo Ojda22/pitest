@@ -15,6 +15,7 @@ import org.pitest.mutationtest.ClassMutationResults;
 import org.pitest.mutationtest.MutationMetaData;
 import org.pitest.mutationtest.MutationResultListener;
 import org.pitest.mutationtest.build.MutationAnalysisUnit;
+import org.pitest.rewriter.Serializer;
 import org.pitest.util.Log;
 import org.pitest.util.Unchecked;
 
@@ -70,7 +71,6 @@ public class MutationAnalysisExecutor {
         e.printStackTrace();
       }
     }
-
   }
 
   private void processResult(MutationMetaData r)
@@ -85,11 +85,13 @@ public class MutationAnalysisExecutor {
   private void signalRunStartToAllListeners() {
     FCollection.forEach(this.listeners,
         a -> a.runStart());
+    Serializer.closeOrOpenMutationFile();
   }
 
   private void signalRunEndToAllListeners() {
     FCollection.forEach(this.listeners,
         a -> a.runEnd());
+    Serializer.closeOrOpenMutationFile();
   }
 
 }

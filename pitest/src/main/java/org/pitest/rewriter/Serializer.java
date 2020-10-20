@@ -6,15 +6,14 @@ import org.pitest.mutationtest.execute.MutationTestWorker;
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
 import java.io.IOException;
-import java.io.FileWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
@@ -32,6 +31,8 @@ public class Serializer {
     public static final String EXP = "[EXCEPTION]";
     public static final String STRACE = "[STACKTRACE]";
     public static final Logger LOG = Log.getLogger();
+
+    private static final String MUT_ASSERT_FILE = "mutations-assertions.xml";
 
     public static void serializeCoverage(String desc) {
         try {
@@ -264,30 +265,14 @@ public class Serializer {
     public static void writeResult(String result, int instanceCount) {
         BufferedWriter serializer = null;
         try {
-            String fileName = MUT_DIRECTORY + File.separator
-                    + MutationTestWorker.mutationDetails.getId().getClassName().getNameWithoutPackage()
-                    + "-" + MutationTestWorker.mutationDetails.getLineNumbers().stream().map(i -> i+"").collect(Collectors.joining(","))
-                    + "-" + MutationTestWorker.mutationDetails.getBlocks().stream().map(i -> i+"").collect(Collectors.joining(","))
-                    + "-" + MutationTestWorker.mutationDetails.getId().getIndexesList().stream().map(l -> l.get(0)+"").collect(Collectors.joining(","))
-                    + "-" + MutationTestWorker.mutationDetails.getId().getMutators().stream().collect(Collectors.joining(","));
-            File outputDir = new File(MUT_DIRECTORY);
-            if (!outputDir.exists()) {
-                outputDir.mkdir();
-            }
+            String fileName = MUT_DIRECTORY + File.separator + MUT_ASSERT_FILE;
 
-//            GZIPOutputStream zip = new GZIPOutputStream(new FileOutputStream(new File(fileName + ".cover.gz")));
+            serializer = new BufferedWriter(new FileWriter(new File(fileName), true));
 
-            serializer = new BufferedWriter(new FileWriter(fileName + ".cover", true));
-//            serializer = new BufferedWriter(new OutputStreamWriter(zip, "UTF-8"));
+            ReportWriter reportWriter = new ReportWriter(serializer);
 
-            ReportWriter reportWriter = new ReportWriter(serializer, MutationTestWorker.mutationDetails, resultItemsList);
+            reportWriter.runBody(MutationTestWorker.mutationDetails, resultItemsList);
 
-//            serializer.write(MutationTestWorker.mutationDetails.toString() + "\n");
-//
-//            for (String item : list) {
-//                serializer.write(item + "\n");
-//            }
-//            serializer.write(result);
             serializer.flush();
 
             resultItemsList.clear();
@@ -304,6 +289,38 @@ public class Serializer {
         }
     }
 
+
+    public static void closeOrOpenMutationFile(){
+        BufferedWriter serializer = null;
+        try {
+            File outputDir = new File(MUT_DIRECTORY);
+            if (!outputDir.exists()) {
+                outputDir.mkdir();
+            }
+
+            String fileName = outputDir + File.separator + MUT_ASSERT_FILE;
+
+            File file = new File(fileName);
+            boolean fileExists = file.exists();
+
+            serializer = new BufferedWriter(new FileWriter(file, true));
+            ReportWriter reportWriter = new ReportWriter(serializer);
+            if (fileExists) {
+                reportWriter.runEnd();
+            }else {
+                reportWriter.runStart();
+            }
+            serializer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                serializer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /**
      * Compute object content via transforming the object into XML format (using
