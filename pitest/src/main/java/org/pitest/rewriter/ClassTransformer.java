@@ -42,21 +42,14 @@ public class ClassTransformer implements ClassFileTransformer {
             }
 
             if (className.contains("ESTest")) {
-                LOG.info("EVOSUITE CLASS CLASSLOADER IS DIFFERENT: " + loader);
-                LOG.info("EVOSUITE CLASS CLASSLOADER IS DIFFERENT: " + ClassLoader.getSystemClassLoader());
-                LOG.info("EVOSUITE CLASS CLASSLOADER IS THE SAME");
+                LOG.info("EVOSUITE CLASS CLASSLOADER: " + loader + " - " +  ClassLoader.getSystemClassLoader());
             }
 
-            if (loader != ClassLoader.getSystemClassLoader() && !className.contains("ESTest")) {
+            if (loader != ClassLoader.getSystemClassLoader()){
                 return classfileBuffer;
             }
 
             if (this.whiteList == null || !className.startsWith(this.whiteList)){
-                if (className.contains("ESTest")){
-                    LOG.info("EVOSUITE CLASS DOES NOT START WITH WHITELIST PREFIX");
-                    LOG.info(className);
-                    LOG.info(this.whiteList);
-                }
                 return classfileBuffer;
             }
 
