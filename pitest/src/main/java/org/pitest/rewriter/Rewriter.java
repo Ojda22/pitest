@@ -1,8 +1,18 @@
 package org.pitest.rewriter;
 
 import org.hamcrest.Matcher;
+import org.pitest.util.Log;
+
+import java.util.logging.Logger;
 
 public class Rewriter {
+
+    private static final Logger LOG = Log.getLogger();
+
+    // junit5
+    public static void assertEquals(int expected, int actual, String message, String id_assertion) {
+        LOG.info("#1# Expected: " + expected + " - Actual: " + actual + " - Message: " + message + " - AssertionID: " + id_assertion);
+    }
 
     public static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher, String id_assertion) {
         Serializer.serialize(id_assertion, matcher.matches(actual), actual);

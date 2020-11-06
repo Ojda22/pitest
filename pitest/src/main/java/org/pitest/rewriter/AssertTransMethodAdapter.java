@@ -36,79 +36,79 @@ public class AssertTransMethodAdapter extends MethodVisitor {
 //                "assertNotSame", "assertSame", "assertArrayEquals", "fail", "failNotEquals", "failNotSame",
 //                "failSame", "assertFailSame", "assertThat");
 
-        Collections.addAll(returns, Opcodes.IRETURN, Opcodes.RETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN, Opcodes.ARETURN);
+            Collections.addAll(returns, Opcodes.IRETURN, Opcodes.RETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN, Opcodes.ARETURN);
 
-        Set<String> descriptionSet = new HashSet<String>();
+            Set<String> descriptionSet = new HashSet<String>();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;Z)V", "(Z)V");
-        assertionDictionary.put("assertTrue", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;Z)V", "(Z)V");
+            assertionDictionary.put("assertTrue", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;Z)V", "(Z)V");
-        assertionDictionary.put("assertFalse", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;Z)V", "(Z)V");
+            assertionDictionary.put("assertFalse", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;)V", "()V");
-        assertionDictionary.put("fail", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;)V", "()V");
+            assertionDictionary.put("fail", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;[Ljava/lang/Object;[Ljava/lang/Object;)V","([Ljava/lang/Object;[Ljava/lang/Object;)V",
-                "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
-                , "(Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
-                , "(Ljava/lang/String;Ljava/lang/String;)V", "(Ljava/lang/String;DDD)V",
-                "(DDD)V", "(Ljava/lang/String;FFF)V", "(FFF)V", "(Ljava/lang/String;JJ)V", "(JJ)V","(Ljava/lang/String;ZZ)V"
-                , "(ZZ)V", "(Ljava/lang/String;BB)V", "(BB)V", "(Ljava/lang/String;CC)V", "(CC)V", "((Ljava/lang/String;SS)V"
-                ,"(SS)V", "(Ljava/lang/String;II)V", "(II)V", "(Ljava/lang/String;DD)V");
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;[Ljava/lang/Object;[Ljava/lang/Object;)V", "([Ljava/lang/Object;[Ljava/lang/Object;)V",
+                    "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"
+                    , "(Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
+                    , "(Ljava/lang/String;Ljava/lang/String;)V", "(Ljava/lang/String;DDD)V",
+                    "(DDD)V", "(Ljava/lang/String;FFF)V", "(FFF)V", "(Ljava/lang/String;JJ)V", "(JJ)V", "(Ljava/lang/String;ZZ)V"
+                    , "(ZZ)V", "(Ljava/lang/String;BB)V", "(BB)V", "(Ljava/lang/String;CC)V", "(CC)V", "((Ljava/lang/String;SS)V"
+                    , "(SS)V", "(Ljava/lang/String;II)V", "(II)V", "(Ljava/lang/String;DD)V");
 
-        assertionDictionary.put("assertEquals", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            assertionDictionary.put("assertEquals", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/Object;)V");
-        assertionDictionary.put("assertNotNull", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/Object;)V");
+            assertionDictionary.put("assertNotNull", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/Object;)V");
-        assertionDictionary.put("assertNull", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/Object;)V");
+            assertionDictionary.put("assertNull", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/Object;Ljava/lang/Object;)V");
-        assertionDictionary.put("assertSame", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+            assertionDictionary.put("assertSame", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/Object;Ljava/lang/Object;)V");
-        assertionDictionary.put("assertNotSame", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/Object;Ljava/lang/Object;)V");
+            assertionDictionary.put("assertNotSame", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-        assertionDictionary.put("failNotSame", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            assertionDictionary.put("failNotSame", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-        assertionDictionary.put("failNotEquals", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            assertionDictionary.put("failNotEquals", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;[Ljava/lang/Object;[Ljava/lang/Object;)V"
-                , "([Ljava/lang/Object;[Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
-                , "(Ljava/lang/String;[B[B)V", "([B[B)V","(Ljava/lang/String;[D[DD)V",
-                "([D[DD)V", "(Ljava/lang/String;[F[FF)V", "([F[FF)V", "(Ljava/lang/String;[J[J)V", "([J[J)V","(Ljava/lang/String;[Z[Z)V"
-                , "([Z[Z)V",   "(Ljava/lang/String;[C[C)V", "([C[C)V", "((Ljava/lang/String;[S[S)V"
-                ,"([S[S)V", "(Ljava/lang/String;[I[I)V", "([I[I)V");
-        assertionDictionary.put("assertArrayEquals", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;[Ljava/lang/Object;[Ljava/lang/Object;)V"
+                    , "([Ljava/lang/Object;[Ljava/lang/Object;)V", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
+                    , "(Ljava/lang/String;[B[B)V", "([B[B)V", "(Ljava/lang/String;[D[DD)V",
+                    "([D[DD)V", "(Ljava/lang/String;[F[FF)V", "([F[FF)V", "(Ljava/lang/String;[J[J)V", "([J[J)V", "(Ljava/lang/String;[Z[Z)V"
+                    , "([Z[Z)V", "(Ljava/lang/String;[C[C)V", "([C[C)V", "((Ljava/lang/String;[S[S)V"
+                    , "([S[S)V", "(Ljava/lang/String;[I[I)V", "([I[I)V");
+            assertionDictionary.put("assertArrayEquals", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;)V");
-        assertionDictionary.put("failSame", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;)V");
+            assertionDictionary.put("failSame", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/Object;Lorg/hamcrest/Matcher;Ljava/lang/String;)V","(Ljava/lang/String;Ljava/lang/Object;Lorg/hamcrest/Matcher;Ljava/lang/String;)V");
-        assertionDictionary.put("assertThat", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/Object;Lorg/hamcrest/Matcher;Ljava/lang/String;)V", "(Ljava/lang/String;Ljava/lang/Object;Lorg/hamcrest/Matcher;Ljava/lang/String;)V");
+            assertionDictionary.put("assertThat", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
-        Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/String;JJ)V"
-                , "(Ljava/lang/String;FFF)V", "(Ljava/lang/String;DDD)V", "(Ljava/lang/Object;Ljava/lang/Object;)V", "(JJ)V"
-                , "(FFF)V", "(DDD)V");
-        assertionDictionary.put("assertNotEquals", new HashSet<String>(descriptionSet));
-        descriptionSet.clear();
+            Collections.addAll(descriptionSet, "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", "(Ljava/lang/String;JJ)V"
+                    , "(Ljava/lang/String;FFF)V", "(Ljava/lang/String;DDD)V", "(Ljava/lang/Object;Ljava/lang/Object;)V", "(JJ)V"
+                    , "(FFF)V", "(DDD)V");
+            assertionDictionary.put("assertNotEquals", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
 
 //        LOG.info("<<<<< Assertion dictonary contains:");
 //        for(Entry<String, Set<String>> entrySet : assertionDictionary.entrySet()){
@@ -116,6 +116,12 @@ public class AssertTransMethodAdapter extends MethodVisitor {
 //            LOG.info("<<<<<<<< Contains descriptions: " + entrySet.getValue().size());
 //        }
 
+            // Junit 5 API implementation
+            // no need for separation, if uses junit5, can also have junit4 tests
+
+            Collections.addAll(descriptionSet, "(IILjava/lang/String;)V", "");
+            assertionJunit5Dictionary.put("assertEquals", new HashSet<String>(descriptionSet));
+            descriptionSet.clear();
     }
 
     public AssertTransMethodAdapter(MethodVisitor methodVisitor, int access, String classMethodDescription){
@@ -180,6 +186,13 @@ public class AssertTransMethodAdapter extends MethodVisitor {
                     if (this.classname.contains("ESTest")){
                         LOG.info("###### assertThat is ok: " + methodName);
                     }
+                    return true;
+                }
+            }
+            if ("org.junit.jupiter.api.Assertions".equals(owner)){
+                LOG.info("#### OWNER EQUAL JUNIT5");
+                if (assertionJunit5Dictionary.get(methodName).contains(description)){
+                    LOG.info("#### METHOD DESCRIPTION IS CONTAINED");
                     return true;
                 }
             }

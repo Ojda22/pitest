@@ -296,7 +296,8 @@ public class ReportOptions {
 //      writer.write(prefix);
       writer.write("targetProject=" + prefix + "\n");
       writer.write("assertionCache=" + this.assertionCache + "\n");
-      writer.write("coverageCache=" + this.coverageCache);
+      writer.write("coverageCache=" + this.coverageCache + "\n");
+      writer.write("testPlugin=" + this.testPlugin);
       writer.flush();
       writer.close();
     } catch (IOException e) {

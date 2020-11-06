@@ -35,15 +35,15 @@ public class ClassTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
 
-        LOG.info("ClassName: " + className);
+//        LOG.info("ClassName: " + className);
         try {
             if (className == null){
                 return classfileBuffer;
             }
 
-            if (className.contains("ESTest")) {
-                LOG.info("EVOSUITE CLASS CLASSLOADER: " + loader + " - " +  ClassLoader.getSystemClassLoader());
-            }
+//            if (className.contains("ESTest")) {
+//                LOG.info("EVOSUITE CLASS CLASSLOADER: " + loader + " - " +  ClassLoader.getSystemClassLoader());
+//            }
 
             if (loader != ClassLoader.getSystemClassLoader()){
                 return classfileBuffer;
@@ -53,9 +53,9 @@ public class ClassTransformer implements ClassFileTransformer {
                 return classfileBuffer;
             }
 
-            if (className.contains("ESTest")){
-                LOG.info("EVOSUITE CLASS PASSING WHITE LIST CHECK");
-            }
+//            if (className.contains("ESTest")){
+//                LOG.info("EVOSUITE CLASS PASSING WHITE LIST CHECK");
+//            }
 
             byte[] result = classfileBuffer;
             ClassReader reader = new ClassReader(classfileBuffer);
@@ -78,27 +78,6 @@ public class ClassTransformer implements ClassFileTransformer {
     }
 
     public ClassTransformer(){
-//        BufferedReader br = null;
-//
-//        try {
-//            String sCurrentLine;
-//            br = new BufferedReader(new FileReader("prefix.conf"));
-//
-//            while ((sCurrentLine = br.readLine()) != null) {
-//                whiteList = sCurrentLine;
-//                LOG.info("=======================conf read:" + whiteList);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (br != null){
-//                    br.close();
-//                }
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
         this.whiteList = readConfig().get("targetProject");
         configuration = readConfig();
     }
